@@ -1,0 +1,238 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f9fafb;
+  --foreground: #0f172a;
+  --primary: #107c68;
+  --radius: 0.625rem;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Custom Scrollbars */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.scrollbar-thumb-gray-200::-webkit-scrollbar-thumb {
+  background-color: #e5e7eb;
+  border-radius: 10px;
+}
+.scrollbar-track-transparent::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+/* Firefox support */
+.scrollbar-thin.scrollbar-thumb-gray-200 {
+  scrollbar-width: thin;
+  scrollbar-color: #e5e7eb transparent;
+}
+
+/* =============================================
+   CMS Article - Typography for rendered content
+   Overrides all Quill inline-styles aggressively
+   ============================================= */
+
+/* Reset & Container */
+.cms-article {
+  color: #374151;
+  font-size: 1rem;
+  line-height: 1.8;
+  font-family: 'Inter', 'Roboto', Arial, sans-serif !important;
+}
+
+/* 
+  *** KEY FIX ***
+  Quill saves text-align: justify as inline-style.
+  We must override ALL elements with !important.
+  word-break: normal + overflow-wrap: break-word
+  is the CORRECT combo for Vietnamese text.
+*/
+.cms-article,
+.cms-article * {
+  text-align: left !important;
+  word-break: normal !important;
+  overflow-wrap: break-word !important;
+  white-space: normal !important;
+  box-sizing: border-box;
+  font-family: 'Inter', 'Roboto', Arial, sans-serif !important;
+}
+
+/* Images - never overflow */
+.cms-article img {
+  max-width: 100% !important;
+  width: auto !important;
+  height: auto !important;
+  display: block;
+  margin: 1.5rem auto;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+}
+
+/* Paragraphs */
+.cms-article p {
+  margin-bottom: 1.1rem;
+  margin-top: 0;
+}
+
+/* Headings */
+.cms-article h1,
+.cms-article h2,
+.cms-article h3,
+.cms-article h4,
+.cms-article h5,
+.cms-article h6 {
+  color: #111827;
+  font-weight: 700;
+  line-height: 1.3;
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
+}
+.cms-article h1 { font-size: 1.875rem; }
+.cms-article h2 { font-size: 1.5rem; }
+.cms-article h3 { font-size: 1.25rem; }
+.cms-article h4 { font-size: 1.125rem; }
+
+/* Strong / Bold */
+.cms-article strong,
+.cms-article b {
+  font-weight: 700;
+  color: #111827;
+}
+
+/* Italic */
+.cms-article em,
+.cms-article i {
+  font-style: italic;
+}
+
+/* Links */
+.cms-article a {
+  color: #2563eb;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.cms-article a:hover {
+  color: #1d4ed8;
+}
+
+/* Lists */
+.cms-article ul,
+.cms-article ol {
+  padding-left: 1.5rem;
+  margin-bottom: 1.1rem;
+  margin-top: 0;
+}
+.cms-article ul { list-style-type: disc; }
+.cms-article ol { list-style-type: decimal; }
+.cms-article li {
+  margin-bottom: 0.4rem;
+  padding-left: 0.25rem;
+}
+
+/* Blockquote */
+.cms-article blockquote {
+  border-left: 4px solid #cbd5e1;
+  padding: 0.5rem 0 0.5rem 1.25rem;
+  margin: 1.5rem 0;
+  font-style: italic;
+  color: #6b7280;
+  background: #f8fafc;
+  border-radius: 0 0.5rem 0.5rem 0;
+}
+
+/* Tables */
+.cms-article table {
+  width: 100%;
+  max-width: 100%;
+  display: block;
+  overflow-x: auto;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+}
+.cms-article th,
+.cms-article td {
+  border: 1px solid #e5e7eb;
+  padding: 0.625rem 0.875rem;
+}
+.cms-article th {
+  background: #f9fafb;
+  font-weight: 600;
+  color: #374151;
+}
+
+/* Code */
+.cms-article code {
+  background: #f3f4f6;
+  padding: 0.15em 0.4em;
+  border-radius: 0.25rem;
+  font-size: 0.9em;
+  color: #d97706;
+}
+.cms-article pre {
+  background: #1e293b;
+  color: #e2e8f0;
+  padding: 1rem 1.25rem;
+  border-radius: 0.75rem;
+  overflow-x: auto;
+  margin: 1.5rem 0;
+}
+.cms-article pre code {
+  background: transparent;
+  color: inherit;
+  padding: 0;
+}
+
+/* Horizontal rule */
+.cms-article hr {
+  border: none;
+  border-top: 1px solid #e5e7eb;
+  margin: 2rem 0;
+}
+
+/* Quill-specific: ql-align classes */
+.cms-article .ql-align-left { text-align: left !important; }
+.cms-article .ql-align-center { text-align: left !important; }
+.cms-article .ql-align-right { text-align: left !important; }
+.cms-article .ql-align-justify { text-align: left !important; }
+
