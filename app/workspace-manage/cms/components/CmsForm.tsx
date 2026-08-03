@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useMemo } from "react";
+import { useState, useRef, useMemo, forwardRef } from "react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { Save, Loader2, ArrowLeft } from "lucide-react";
@@ -8,7 +8,15 @@ import { saveCmsPage, uploadCmsImage } from "../actions";
 import Link from "next/link";
 import 'react-quill-new/dist/quill.snow.css';
 
-const ReactQuill = dynamic(() => import("react-quill-new"), { ssr: false });
+const ReactQuill = dynamic(
+  async () => {
+    const { default: RQ } = await import("react-quill-new");
+    return forwardRef(function ForwardedQuill(props: any, ref) {
+      return <RQ ref={ref} {...props} />;
+    });
+  },
+  { ssr: false }
+);
 
 export default function CmsForm({ initialData = null }: { initialData?: any }) {
   const router = useRouter();
@@ -150,7 +158,7 @@ export default function CmsForm({ initialData = null }: { initialData?: any }) {
                   placeholder="Nhập tiêu đề..."
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-semibold text-slate-700 mb-1">
                   Slug (Đường dẫn)
@@ -178,7 +186,7 @@ export default function CmsForm({ initialData = null }: { initialData?: any }) {
                     ref={quillRef}
                     theme="snow"
                     value={formData.content}
-                    onChange={(val) => setFormData({ ...formData, content: val })}
+                    onChange={(val: string) => setFormData({ ...formData, content: val })}
                     modules={modules}
                   />
                 </div>
