@@ -48,6 +48,8 @@ export async function POST(request: Request) {
       fileMetadata.copyRequiresWriterPermission = true;
     }
 
+    const origin = request.headers.get("origin") || "";
+
     const res = await fetch(
       "https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable",
       {
@@ -56,6 +58,7 @@ export async function POST(request: Request) {
           Authorization: `Bearer ${token}`,
           "X-Upload-Content-Type": mimeType,
           "Content-Type": "application/json; charset=UTF-8",
+          ...(origin ? { "Origin": origin } : {}),
         },
         body: JSON.stringify(fileMetadata),
       }
