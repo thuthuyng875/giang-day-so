@@ -88,27 +88,69 @@ export default function AddProductPage() {
       // 2. Upload Preview File to Drive
       if (previewFile) {
         uploadTasks.push((async () => {
-          const previewFormData = new FormData();
-          previewFormData.append("file", previewFile);
-          previewFormData.append("fileType", "preview");
-
-          const res = await fetch("/api/upload-drive", { method: "POST", body: previewFormData });
+          // Step A: Get uploadUrl
+          const res = await fetch("/api/drive-upload-url", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ 
+              fileName: previewFile.name, 
+              mimeType: previewFile.type || "application/pdf", 
+              isSource: false 
+            })
+          });
           const data = await res.json();
-          if (!res.ok) throw new Error(data.error || "Lỗi upload bản xem thử");
-          return { type: 'preview', url: data.driveLinks.webViewLink };
+          if (!res.ok) throw new Error(data.error || "Lỗi lấy URL upload bản xem thử");
+
+          // Step B: PUT request directly to Google Drive
+          const uploadRes = await fetch(data.uploadUrl, {
+            method: "PUT",
+            headers: { "Content-Type": previewFile.type || "application/pdf" },
+            body: previewFile,
+          });
+          
+          if (!uploadRes.ok) throw new Error("Lỗi upload bản xem thử lên Google Drive");
+          
+          // Step C: Extract ID and construct link
+          const uploadData = await uploadRes.json();
+          const fileId = uploadData.id;
+          const webViewLink = `https://drive.google.com/file/d/${fileId}/view?usp=sharing`;
+          
+          // Note: In a production environment where the parent folder doesn't have public permissions,
+          // you would also need a backend route to set the permissions on this fileId.
+          return { type: 'preview', url: webViewLink };
         })());
       }
 
       // 3. Upload Source File to Drive
       uploadTasks.push((async () => {
-        const sourceFormData = new FormData();
-        sourceFormData.append("file", sourceFile);
-        sourceFormData.append("fileType", "source");
-
-        const res = await fetch("/api/upload-drive", { method: "POST", body: sourceFormData });
+        // Step A: Get uploadUrl
+        const res = await fetch("/api/drive-upload-url", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ 
+            fileName: sourceFile.name, 
+            mimeType: sourceFile.type || "application/octet-stream", 
+            isSource: true 
+          })
+        });
         const data = await res.json();
-        if (!res.ok) throw new Error(data.error || "Lỗi upload bản gốc");
-        return { type: 'source', url: data.driveLinks.webContentLink };
+        if (!res.ok) throw new Error(data.error || "Lỗi lấy URL upload bản gốc");
+
+        // Step B: PUT request directly to Google Drive
+        const uploadRes = await fetch(data.uploadUrl, {
+          method: "PUT",
+          headers: { "Content-Type": sourceFile.type || "application/octet-stream" },
+          body: sourceFile,
+        });
+        
+        if (!uploadRes.ok) throw new Error("Lỗi upload bản gốc lên Google Drive");
+        
+        // Step C: Extract ID and construct link
+        const uploadData = await uploadRes.json();
+        const fileId = uploadData.id;
+        const webContentLink = `https://drive.google.com/uc?export=download&id=${fileId}`;
+        
+        return { type: 'source', url: webContentLink };
       })());
 
       const results = await Promise.all(uploadTasks);
