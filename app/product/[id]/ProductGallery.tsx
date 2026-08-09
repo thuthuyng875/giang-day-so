@@ -28,87 +28,91 @@ export function ProductGallery({ images, productName, isDynamic, infoContent, ac
   };
 
   return (
-    <div className="w-full flex flex-col gap-5">
-      {/* Top Row: Image & Info */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-        <div className="lg:col-span-5 w-full flex flex-col h-full">
-          {/* Ảnh Bìa chính */}
-          <div className="relative w-full aspect-square lg:aspect-auto lg:h-full rounded-[18px] border border-[#ECECEC] bg-white overflow-hidden flex items-center justify-center p-4 group">
-            {isDynamic && (
-              <div className="absolute top-4 right-4 z-20">
-                <Badge className="bg-amber-400 text-amber-900 font-bold px-3 py-1 text-xs shadow-sm border-none rounded-full">
-                  ⚡ Cập nhật
-                </Badge>
-              </div>
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start w-full">
+      {/* Left Column: Image & Thumbnails */}
+      <div className="lg:col-span-5 w-full flex flex-col">
+        
+        {/* Outer Wrapper for Image & Thumbnails */}
+        <div className="w-full bg-white border border-[#ECECEC] rounded-[16px] p-5 lg:p-6 flex flex-col gap-6 relative">
+          
+          {/* Main Image Container */}
+          <div className="relative w-full flex items-center justify-center">
+            
+            {/* Arrows (Positioned at edges of container) */}
+            {images.length > 1 && (
+              <button
+                onClick={prevImage}
+                className="absolute left-0 top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center rounded-full bg-white border border-[#ECECEC] text-slate-600 hover:bg-slate-50 hover:text-[#2563EB] transition-colors z-30 shadow-sm"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </button>
             )}
-            {mainImage ? (
-              <div className="relative w-full h-full rounded-xl overflow-hidden">
-                <Image
-                  src={mainImage}
-                  alt={productName}
-                  fill
-                  sizes="(max-width: 1024px) 100vw, 360px"
-                  className="object-contain transition-transform duration-500 group-hover:scale-[1.02]"
-                  priority
-                />
-              </div>
-            ) : (
-              <div className="flex h-full items-center justify-center text-sm text-[#94A3B8]">
-                Chưa có ảnh bìa
-              </div>
-            )}
-          </div>
-        </div>
-        <div className="lg:col-span-7 flex flex-col h-full min-w-0">
-          {infoContent}
-        </div>
-      </div>
 
-      {/* Bottom Row: Thumbnails & Actions */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        <div className="lg:col-span-5 w-full">
+            {images.length > 1 && (
+              <button
+                onClick={nextImage}
+                className="absolute right-0 top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center rounded-full bg-white border border-[#ECECEC] text-slate-600 hover:bg-slate-50 hover:text-[#2563EB] transition-colors z-30 shadow-sm"
+              >
+                <ChevronRight className="w-5 h-5" />
+              </button>
+            )}
+
+            {/* Actual Main Image with Book Shadow */}
+            <div className="relative w-full max-w-[260px] flex justify-center mx-auto group">
+              {isDynamic && (
+                <div className="absolute top-2 right-2 z-20">
+                  <Badge className="bg-amber-400 text-amber-900 font-bold px-2.5 py-0.5 text-[10px] shadow-sm border-none rounded-full">
+                    ⚡ Cập nhật
+                  </Badge>
+                </div>
+              )}
+              {mainImage ? (
+                <div className="relative inline-block rounded-md overflow-hidden bg-white shadow-[4px_4px_16px_rgba(0,0,0,0.1)] border border-gray-100 transition-transform duration-500 group-hover:scale-[1.02]">
+                  {/* Fake Book Spine effect */}
+                  <div className="absolute left-0 top-0 bottom-0 w-[4px] bg-black/5 z-10" />
+                  
+                  <img
+                    src={mainImage}
+                    alt={productName}
+                    referrerPolicy="no-referrer"
+                    className="w-full h-auto min-h-[240px] max-h-[260px] object-contain block text-transparent"
+                  />
+                </div>
+              ) : (
+                <div className="w-full aspect-square flex items-center justify-center text-sm text-[#94A3B8] border border-dashed border-gray-300 rounded-md bg-white">
+                  Chưa có ảnh bìa
+                </div>
+              )}
+            </div>
+          </div>
+
           {/* Thumbnail Carousel */}
           {hasImages && (
-            <div className="flex items-center justify-center gap-2 relative px-8 -mt-2.5">
-              {images.length > 1 && (
-                <button
-                  onClick={prevImage}
-                  className="absolute left-0 w-7 h-7 flex items-center justify-center rounded-full bg-white border border-[#ECECEC] text-slate-600 hover:bg-slate-50 transition-colors z-10 shadow-sm"
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                </button>
-              )}
-
+            <div className="flex items-center justify-center gap-3 w-full">
               <div className="flex items-center gap-3 overflow-hidden justify-center flex-1">
                 {images.map((img, idx) => (
                   <div
                     key={idx}
                     onClick={() => setCurrentIndex(idx)}
-                    className={`w-[64px] h-[64px] rounded-[12px] overflow-hidden relative cursor-pointer bg-white transition-all shrink-0 ${
+                    className={`w-[60px] h-[60px] rounded-[10px] overflow-hidden relative cursor-pointer bg-white transition-all shrink-0 shadow-sm ${
                       currentIndex === idx
                         ? "border-2 border-[#2563EB]"
                         : "border border-[#ECECEC] opacity-70 hover:opacity-100"
                     }`}
                   >
-                    <Image src={img} alt={`Thumb ${idx + 1}`} fill className="object-cover" />
+                    <Image src={img} alt={`Thumb ${idx + 1}`} fill sizes="60px" className="object-cover" />
                   </div>
                 ))}
               </div>
-
-              {images.length > 1 && (
-                <button
-                  onClick={nextImage}
-                  className="absolute right-0 w-7 h-7 flex items-center justify-center rounded-full bg-white border border-[#ECECEC] text-slate-600 hover:bg-slate-50 transition-colors z-10 shadow-sm"
-                >
-                  <ChevronRight className="w-4 h-4" />
-                </button>
-              )}
             </div>
           )}
         </div>
-        <div className="lg:col-span-7 w-full flex flex-col">
-          {actionContent}
-        </div>
+      </div>
+
+      {/* Right Column: Info & Actions */}
+      <div className="lg:col-span-7 w-full flex flex-col min-w-0">
+        {infoContent}
+        {actionContent}
       </div>
     </div>
   );

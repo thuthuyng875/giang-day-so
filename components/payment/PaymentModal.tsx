@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { usePayment } from './PaymentProvider';
-import { QRCodeSVG } from 'qrcode.react';
+import { QRCodeCanvas } from 'qrcode.react';
 import { X, CheckCircle2, Zap, Lock, User, ChevronDown, Copy, Check, Info, Star, ShieldCheck, ScanLine, Wallet, Mail, DownloadCloud } from 'lucide-react';
 import { supabase } from '@/lib/supabase/client';
 
@@ -43,11 +43,10 @@ export function PaymentModal() {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [selectedUpsells, setSelectedUpsells] = useState<Set<string>>(new Set()); // Default empty
-  const [isSummaryOpen, setIsSummaryOpen] = useState(false);
 
   // Right Column States
   const [paymentTab, setPaymentTab] = useState<'qr' | 'manual'>('qr');
-  const [copied, setCopied] = useState(false);
+  const [copiedText, setCopiedText] = useState<string | null>(null);
 
   // Payment Logic States
   const [paymentData, setPaymentData] = useState<PaymentData | null>(null);
@@ -68,7 +67,6 @@ export function PaymentModal() {
       setIsDynamic(false);
       setAccessLink('');
       setPaymentTab('qr');
-      setIsSummaryOpen(false);
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = 'unset';
@@ -79,29 +77,35 @@ export function PaymentModal() {
   }, [isModalOpen, selectedProduct]);
 
   // Calculate Total Amount
+  const baseProductPrice = useMemo(() => {
+    if (!selectedProduct) return 0;
+    return selectedProduct.price ?? (selectedProduct as any).sale_price ?? 0;
+  }, [selectedProduct]);
+
   const totalAmount = useMemo(() => {
     if (!selectedProduct) return 0;
-    let total = selectedProduct.price;
+    let total = baseProductPrice;
     STATIC_UPSELLS.forEach(upsell => {
       if (selectedUpsells.has(upsell.id)) {
         total += upsell.price;
       }
     });
     return total;
-  }, [selectedProduct, selectedUpsells]);
+  }, [selectedProduct, selectedUpsells, baseProductPrice]);
 
   const oldTotalAmount = useMemo(() => {
     if (!selectedProduct) return 0;
-    let old = Math.round((selectedProduct.price * 1.25) / 5000) * 5000; // Fake old price
+    let old = (selectedProduct as any).original_price ?? Math.round((baseProductPrice * 1.25) / 5000) * 5000;
     STATIC_UPSELLS.forEach(upsell => {
       if (selectedUpsells.has(upsell.id)) {
         old += upsell.oldPrice;
       }
     });
     return old;
-  }, [selectedProduct, selectedUpsells]);
+  }, [selectedProduct, selectedUpsells, baseProductPrice]);
 
-  const savedAmount = oldTotalAmount - totalAmount;
+  const savedAmount = oldTotalAmount > totalAmount ? oldTotalAmount - totalAmount : 0;
+  const discountPercent = oldTotalAmount > 0 ? Math.round((savedAmount / oldTotalAmount) * 100) : 0;
 
   const toggleUpsell = (id: string) => {
     const newSet = new Set(selectedUpsells);
@@ -210,9 +214,21 @@ export function PaymentModal() {
   }, [paymentData, orderStatus, selectedProduct]);
 
   const handleCopy = (text: string) => {
+    if (!text) return;
     navigator.clipboard.writeText(text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    setCopiedText(text);
+    setTimeout(() => setCopiedText(null), 2000);
+  };
+
+  const handleDownloadQR = () => {
+    const canvas = document.getElementById('payment-qr-code') as HTMLCanvasElement;
+    if (canvas) {
+      const dataUrl = canvas.toDataURL('image/png');
+      const a = document.createElement('a');
+      a.href = dataUrl;
+      a.download = 'QR_Thanh_Toan.png';
+      a.click();
+    }
   };
 
   if (!isModalOpen || !selectedProduct) return null;
@@ -239,112 +255,45 @@ export function PaymentModal() {
           <div className="w-full lg:w-[45%] flex flex-col p-5 lg:overflow-y-auto border-r border-slate-100 bg-white">
             <div className="space-y-5 max-w-lg mx-auto w-full">
 
-              {/* 1. TÀI LIỆU CHỌN MUA */}
-              <div className="space-y-2.5">
-                <h3 className="text-[12px] font-extrabold text-slate-800 uppercase tracking-wide">1. Tài liệu bạn chọn</h3>
-                <div className="flex gap-3 p-3 rounded-2xl border border-blue-100 bg-blue-50/30 shadow-sm relative overflow-hidden group">
-                  <div className="absolute top-0 left-0 w-1.5 h-full bg-blue-600"></div>
-                  {selectedProduct.image_url ? (
-                    <img
-                      src={selectedProduct.image_url}
-                      alt={selectedProduct.name}
-                      className="w-[64px] h-[86px] object-cover rounded-xl border border-slate-200/60 shadow-sm shrink-0 bg-white"
-                    />
-                  ) : (
-                    <div className="w-[64px] h-[86px] bg-slate-50 rounded-xl flex items-center justify-center border border-slate-200 text-[10px] text-slate-400 text-center p-2 shrink-0">
-                      Chưa có ảnh
-                    </div>
-                  )}
-                  <div className="flex-1 flex flex-col py-0.5">
-                    <h4 className="font-bold text-slate-800 text-[14px] leading-snug line-clamp-2 group-hover:text-blue-600 transition-colors">
-                      {selectedProduct.name}
-                    </h4>
-                    <div className="flex items-center gap-2 mt-1.5">
-                      <span className="inline-block bg-blue-100/50 text-blue-700 px-2 py-0.5 rounded text-[10px] font-bold">
-                        {selectedProduct.category || 'Tài liệu'}
-                      </span>
-                      <div className="flex items-center gap-1">
-                        <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                      </div>
-                    </div>
-                    <div className="mt-auto flex items-end gap-2 flex-wrap">
-                      <span className="text-lg font-extrabold text-red-600 leading-none">
-                        {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(selectedProduct.price)}
-                      </span>
-                      <span className="text-[12px] text-slate-400 line-through font-medium leading-none mb-[1px]">
-                        {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(Math.round((selectedProduct.price * 1.25) / 5000) * 5000)}
-                      </span>
-                      <span className="text-[9px] font-bold bg-green-100 text-green-700 px-1.5 py-0.5 rounded ml-auto mb-[1px]">Giảm 20%</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
 
-              {/* 2. TỔNG GIÁ TRỊ THANH TOÁN */}
-              <div className="space-y-2.5">
-                <div className="flex justify-between items-center">
-                  <h3 className="text-[12px] font-extrabold text-slate-800 uppercase tracking-wide">2. Tổng giá trị thanh toán</h3>
-                  {savedAmount > 0 && (
-                    <span className="text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-bold">
-                      Tiết kiệm {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(savedAmount)}
-                    </span>
-                  )}
-                </div>
-                <div className="flex items-baseline gap-3">
-                  <span className="text-[28px] font-black text-red-600 tracking-tight leading-none">
-                    {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(totalAmount)}
-                  </span>
-                  <span className="text-[14px] font-semibold text-slate-400 line-through decoration-slate-300">
-                    {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(oldTotalAmount)}
-                  </span>
-                </div>
-              </div>
 
-              {/* 3. TÓM TẮT ĐƠN HÀNG */}
+              {/* 1. TÓM TẮT ĐƠN HÀNG */}
               <div className="border border-slate-200 rounded-xl overflow-hidden bg-white shadow-sm">
-                <button
-                  onClick={() => setIsSummaryOpen(!isSummaryOpen)}
-                  className="w-full flex items-center justify-between p-3 bg-slate-50/50 hover:bg-slate-50 transition-colors"
-                >
-                  <h3 className="text-[12px] font-extrabold text-slate-800 uppercase tracking-wide">3. Tóm tắt đơn hàng</h3>
-                  <div className="flex items-center gap-1.5 text-[11px] text-blue-600 font-semibold">
-                    Xem chi tiết <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-300 ${isSummaryOpen ? 'rotate-180' : ''}`} />
-                  </div>
-                </button>
+                <div className="w-full flex items-center justify-between p-3 bg-slate-50/50">
+                  <h3 className="text-[12px] font-extrabold text-slate-800 uppercase tracking-wide">1. Tóm tắt đơn hàng</h3>
+                </div>
 
                 {/* Summary quick stats */}
                 <div className="flex items-center justify-between px-3 py-2 border-t border-slate-100 text-[11px] font-medium text-slate-600 bg-white">
                   <div className="flex items-center gap-1"><ShieldCheck className="w-3.5 h-3.5 text-slate-400" /> {selectedUpsells.size + 1} sản phẩm</div>
-                  <div className="flex items-center gap-1"><Zap className="w-3.5 h-3.5 text-yellow-500" /> Giảm giá 24%</div>
-                  <div className="flex items-center gap-1"><Star className="w-3.5 h-3.5 text-green-500" /> Tiết kiệm {savedAmount / 1000}k</div>
+                  <div className="flex items-center gap-1"><Zap className="w-3.5 h-3.5 text-yellow-500" /> Giảm giá {discountPercent}%</div>
+                  <div className="flex items-center gap-1"><Star className="w-3.5 h-3.5 text-green-500" /> Tiết kiệm {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(savedAmount)}</div>
                 </div>
 
-                {isSummaryOpen && (
-                  <div className="p-3 border-t border-slate-100 bg-slate-50/50 space-y-2 text-[12px]">
-                    <div className="flex justify-between items-start gap-4">
-                      <span className="text-slate-700 font-medium line-clamp-1">{selectedProduct.name}</span>
-                      <span className="font-bold text-slate-900 shrink-0">{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(selectedProduct.price)}</span>
-                    </div>
-                    {STATIC_UPSELLS.filter(u => selectedUpsells.has(u.id)).map(upsell => (
-                      <div key={upsell.id} className="flex justify-between items-start gap-4">
-                        <span className="text-slate-600 line-clamp-1 flex items-center gap-1.5">
-                          <Check className="w-3 h-3 text-green-500" /> {upsell.name}
-                        </span>
-                        <span className="font-bold text-slate-900 shrink-0">{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(upsell.price)}</span>
-                      </div>
-                    ))}
-                    <div className="border-t border-slate-200/80 pt-2.5 flex justify-between items-center font-extrabold text-slate-800">
-                      <span>Tổng cộng</span>
-                      <span className="text-red-600 text-[14px]">{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(totalAmount)}</span>
-                    </div>
+                <div className="p-3 border-t border-slate-100 bg-slate-50/50 space-y-2 text-[12px]">
+                  <div className="flex justify-between items-start gap-4">
+                    <span className="text-slate-700 font-medium line-clamp-1">{selectedProduct.name}</span>
+                    <span className="font-bold text-slate-900 shrink-0">{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(baseProductPrice)}</span>
                   </div>
-                )}
+                  {STATIC_UPSELLS.filter(u => selectedUpsells.has(u.id)).map(upsell => (
+                    <div key={upsell.id} className="flex justify-between items-start gap-4">
+                      <span className="text-slate-600 line-clamp-1 flex items-center gap-1.5">
+                        <Check className="w-3 h-3 text-green-500" /> {upsell.name}
+                      </span>
+                      <span className="font-bold text-slate-900 shrink-0">{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(upsell.price)}</span>
+                    </div>
+                  ))}
+                  <div className="border-t border-slate-200/80 pt-2.5 flex justify-between items-center font-extrabold text-slate-800">
+                    <span>Tổng cộng</span>
+                    <span className="text-red-600 text-[18px] font-black tracking-tight">{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(totalAmount)}</span>
+                  </div>
+                </div>
               </div>
 
-              {/* 4. GỢI Ý MUA KÈM */}
+              {/* 2. GỢI Ý MUA KÈM */}
               <div className="space-y-2.5">
                 <div className="flex items-center gap-2">
-                  <h3 className="text-[12px] font-extrabold text-slate-800 uppercase tracking-wide">4. Gợi ý mua kèm</h3>
+                  <h3 className="text-[12px] font-extrabold text-slate-800 uppercase tracking-wide">2. Gợi ý mua kèm</h3>
                   <span className="text-[9px] font-bold text-orange-700 bg-orange-100 px-1.5 py-0.5 rounded border border-orange-200 uppercase">Tiết kiệm 30%</span>
                 </div>
                 <div className="space-y-2">
@@ -378,9 +327,9 @@ export function PaymentModal() {
                 </div>
               </div>
 
-              {/* 5. FORM THU THẬP EMAIL & CTA */}
+              {/* 3. FORM THU THẬP EMAIL & CTA */}
               <div className="space-y-2.5 pt-1">
-                <h3 className="text-[12px] font-extrabold text-slate-800 uppercase tracking-wide">5. Thông tin nhận tài liệu</h3>
+                <h3 className="text-[12px] font-extrabold text-slate-800 uppercase tracking-wide">3. Thông tin nhận tài liệu</h3>
                 <form id="payment-form" onSubmit={handlePayment} className="space-y-3">
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
@@ -436,7 +385,7 @@ export function PaymentModal() {
           <div className="w-full lg:w-[55%] flex flex-col p-5 lg:overflow-y-auto relative">
             <div className="max-w-xl mx-auto w-full space-y-5">
 
-              <h3 className="text-[12px] font-extrabold text-slate-800 uppercase tracking-wide">6. Chọn phương thức thanh toán</h3>
+              <h3 className="text-[12px] font-extrabold text-slate-800 uppercase tracking-wide">4. Chọn phương thức thanh toán</h3>
 
               {/* TABS */}
               <div className="grid grid-cols-2 gap-3 relative z-10">
@@ -475,102 +424,128 @@ export function PaymentModal() {
 
                 {/* TAB CONTENT: QR */}
                 {paymentTab === 'qr' && (
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-1.5 text-[12px] text-blue-700 bg-blue-50 border border-blue-100 rounded-lg px-3 py-2 font-medium">
-                      <Info className="w-3.5 h-3.5 shrink-0" />
-                      Mở ứng dụng ngân hàng hoặc ví điện tử và quét mã QR để thanh toán
-                    </div>
+                  <div className="w-full flex flex-col">
+                    <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-md max-w-sm mx-auto flex flex-col items-center w-full">
+                      {/* Top Logo */}
+                      <img src="/images/qr/vietqr-text.png" alt="VietQR" className="h-6 mb-4 object-contain" />
 
-                    <div className="flex flex-col sm:flex-row gap-5 p-4 bg-white rounded-2xl border border-slate-200 shadow-sm items-center sm:items-stretch">
-
-                      {/* QR LEFT */}
-                      <div className="shrink-0 flex flex-col items-center justify-center border-r-0 sm:border-r border-slate-200 sm:pr-5 pb-5 sm:pb-0">
-                        <div className="bg-white p-2.5 rounded-2xl border border-slate-200 shadow-sm relative group">
-                          {paymentData?.qrCode ? (
-                            <QRCodeSVG value={paymentData.qrCode} size={160} level="H" includeMargin={true} />
-                          ) : (
-                            <div className="w-[160px] h-[160px] bg-slate-100 animate-pulse rounded-xl" />
-                          )}
-                          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-md p-1 shadow-md">
-                            <span className="font-black text-red-600 text-[9px] tracking-widest px-1">VietQR</span>
+                      {/* QR Code */}
+                      <div className="border-2 border-[#1B3687] p-2 bg-white mb-4 relative">
+                        {paymentData?.qrCode ? (
+                          <QRCodeCanvas
+                            id="payment-qr-code"
+                            value={paymentData.qrCode}
+                            size={250}
+                            level="H"
+                            imageSettings={{ src: "/images/qr/v-icon.png", height: 30, width: 30, excavate: true }}
+                          />
+                        ) : (
+                          <div className="w-[250px] h-[250px] bg-slate-100 animate-pulse flex items-center justify-center">
+                            <span className="text-slate-400 font-medium text-[13px]">Đang tải mã QR...</span>
                           </div>
-                        </div>
+                        )}
                       </div>
 
-                      {/* INSTRUCTIONS RIGHT */}
-                      <div className="flex-1 flex flex-col justify-center gap-3.5 text-[12px] text-slate-700 font-medium">
-                        <div className="flex items-start gap-2.5">
-                          <div className="w-5 h-5 rounded-full bg-slate-100 flex items-center justify-center shrink-0 border border-slate-200 text-[11px]">1</div>
-                          <span className="pt-0.5">Mở ứng dụng ngân hàng hoặc ví điện tử</span>
-                        </div>
-                        <div className="flex items-start gap-2.5">
-                          <div className="w-5 h-5 rounded-full bg-slate-100 flex items-center justify-center shrink-0 border border-slate-200 text-[11px]">2</div>
-                          <span className="pt-0.5">Chọn chức năng quét mã QR</span>
-                        </div>
-                        <div className="flex items-start gap-2.5">
-                          <div className="w-5 h-5 rounded-full bg-slate-100 flex items-center justify-center shrink-0 border border-slate-200 text-[11px]">3</div>
-                          <span className="pt-0.5">Quét mã QR hiển thị bên cạnh</span>
-                        </div>
-                        <div className="flex items-start gap-2.5">
-                          <div className="w-5 h-5 rounded-full bg-slate-100 flex items-center justify-center shrink-0 border border-slate-200 text-[11px]">4</div>
-                          <span className="pt-0.5">Kiểm tra thông tin và xác nhận thanh toán</span>
-                        </div>
+                      {/* Bottom Logos */}
+                      <div className="flex flex-row items-center justify-center gap-4 mb-6 w-full">
+                        <img src="/images/qr/napas.png" alt="Napas 247" className="h-6 object-contain" />
+                        <div className="h-8 w-[1px] bg-gray-300"></div>
+                        <img src="/images/qr/bank-logo.png" alt="Bank Logo" className="h-6 object-contain" />
+                      </div>
+
+                      {/* Account Details */}
+                      <div className="text-center text-sm leading-relaxed text-[#1B3687]">
+                        <p>Tên TK: NGUYEN THI THU THUY</p>
+                        <p className="font-bold text-base">Số TK: 8828571638</p>
+                        <p>Ngân hàng BIDV</p>
                       </div>
                     </div>
 
-                    {/* Bank Logos Mock */}
-                    <div className="flex items-center justify-center gap-5 grayscale opacity-60">
-                      <span className="text-[11px] font-bold">Vietcombank</span>
-                      <span className="text-[11px] font-bold text-red-600">Techcombank</span>
-                      <span className="text-[11px] font-bold text-blue-800">BIDV</span>
-                      <span className="text-[11px] font-bold text-blue-600">MBBank</span>
-                      <span className="text-[11px] font-bold text-purple-600">TPBank</span>
-                    </div>
+                    {/* Download Button */}
+                    <button
+                      onClick={handleDownloadQR}
+                      className="flex items-center justify-center gap-2 w-full max-w-sm mx-auto mt-4 py-3 bg-blue-50 text-blue-700 font-bold rounded-lg border border-blue-200 hover:bg-blue-100 active:bg-blue-200 transition-colors"
+                    >
+                      <DownloadCloud className="w-4 h-4" />
+                      Tải ảnh QR về máy
+                    </button>
+
+
                   </div>
                 )}
 
                 {/* TAB CONTENT: MANUAL */}
                 {paymentTab === 'manual' && (
-                  <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-3">
-                    <h4 className="text-[13px] font-bold text-slate-800">Thông tin đơn hàng</h4>
+                  <div className="w-full max-w-sm mx-auto bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+                    <h4 className="text-[13px] font-bold text-slate-800 mb-4 px-1">Thông tin chuyển khoản</h4>
 
-                    <div className="space-y-3 text-[12px]">
-                      <div className="flex justify-between items-center border-b border-slate-100 pb-2">
-                        <span className="text-slate-500 font-medium">Nhà cung cấp</span>
-                        <span className="font-bold text-slate-800 text-[13px]">GIANGDAYSO.COM</span>
+                    <div className="flex justify-between items-center py-3 border-b border-gray-100">
+                      <div>
+                        <span className="text-sm text-gray-500">Ngân hàng</span>
+                        <span className="text-base font-bold text-gray-900 block mt-0.5">BIDV</span>
                       </div>
-                      <div className="flex justify-between items-center border-b border-slate-100 pb-2">
-                        <span className="text-slate-500 font-medium">Ngân hàng</span>
-                        <span className="font-extrabold text-slate-800 text-[14px]">BIDV</span>
+                    </div>
+
+                    <div className="flex justify-between items-center py-3 border-b border-gray-100">
+                      <div>
+                        <span className="text-sm text-gray-500">Chủ tài khoản</span>
+                        <span className="text-base font-bold text-gray-900 block mt-0.5">NGUYEN THI THU THUY</span>
                       </div>
-                      <div className="flex justify-between items-center border-b border-slate-100 pb-2">
-                        <span className="text-slate-500 font-medium">Chủ tài khoản</span>
-                        <span className="font-extrabold text-slate-800">NGUYEN THI THU THUY</span>
+                    </div>
+
+                    <div className="flex justify-between items-center py-3 border-b border-gray-100">
+                      <div>
+                        <span className="text-sm text-gray-500">Số tài khoản</span>
+                        <span className="text-base font-bold text-gray-900 block mt-0.5">8828571638</span>
                       </div>
-                      <div className="flex justify-between items-center border-b border-slate-100 pb-2">
-                        <span className="text-slate-500 font-medium">Số tài khoản</span>
-                        <div className="flex items-center gap-2">
-                          <span className="font-extrabold text-slate-800 text-[14px]">8828571638</span>
-                          <button onClick={() => handleCopy('8828571638')} className="text-blue-600 hover:text-blue-800 p-1 bg-blue-50 rounded-md transition-colors" title="Copy số tài khoản">
-                            {copied ? <Check className="w-3.5 h-3.5 text-green-600" /> : <Copy className="w-3.5 h-3.5" />}
-                          </button>
-                        </div>
-                      </div>
-                      <div className="flex justify-between items-center border-b border-slate-100 pb-2">
-                        <span className="text-slate-500 font-medium">Số tiền thanh toán</span>
-                        <span className="font-extrabold text-red-600 text-[15px]">
+                      <button
+                        onClick={() => handleCopy('8828571638')}
+                        className="p-2 bg-gray-50 hover:bg-gray-100 rounded-md text-blue-600 font-medium text-sm flex items-center gap-1 transition-colors"
+                      >
+                        {copiedText === '8828571638' ? (
+                          <><Check className="w-4 h-4 text-green-600" /> <span className="text-green-600">Đã chép</span></>
+                        ) : (
+                          <><Copy className="w-4 h-4" /> Sao chép</>
+                        )}
+                      </button>
+                    </div>
+
+                    <div className="flex justify-between items-center py-3 border-b border-gray-100">
+                      <div>
+                        <span className="text-sm text-gray-500">Số tiền</span>
+                        <span className="text-base font-bold text-gray-900 block mt-0.5">
                           {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(totalAmount)}
                         </span>
                       </div>
-                      <div className="flex justify-between items-center bg-slate-50 p-2.5 rounded-xl border border-slate-200">
-                        <span className="text-slate-600 font-bold">Mã đơn hàng (Nội dung CK)</span>
-                        <div className="flex items-center gap-1.5">
-                          <span className="font-extrabold text-blue-700 text-[15px] tracking-wider">{paymentData?.orderCode || 'XXXXXX'}</span>
-                          <button onClick={() => handleCopy(paymentData?.orderCode?.toString() || '')} className="text-blue-600 hover:text-blue-800 p-1 bg-blue-100 rounded-md transition-colors" title="Copy nội dung">
-                            {copied ? <Check className="w-3.5 h-3.5 text-green-600" /> : <Copy className="w-3.5 h-3.5" />}
-                          </button>
-                        </div>
+                      <button
+                        onClick={() => handleCopy(totalAmount.toString())}
+                        className="p-2 bg-gray-50 hover:bg-gray-100 rounded-md text-blue-600 font-medium text-sm flex items-center gap-1 transition-colors"
+                      >
+                        {copiedText === totalAmount.toString() ? (
+                          <><Check className="w-4 h-4 text-green-600" /> <span className="text-green-600">Đã chép</span></>
+                        ) : (
+                          <><Copy className="w-4 h-4" /> Sao chép</>
+                        )}
+                      </button>
+                    </div>
+
+                    <div className="flex justify-between items-center py-3 border-b border-gray-100 last:border-0">
+                      <div>
+                        <span className="text-sm text-gray-500">Nội dung chuyển khoản</span>
+                        <span className="text-base font-bold text-gray-900 block mt-0.5 uppercase">
+                          {paymentData?.orderCode || 'XXXXXX'}
+                        </span>
                       </div>
+                      <button
+                        onClick={() => handleCopy(paymentData?.orderCode?.toString() || '')}
+                        className="p-2 bg-gray-50 hover:bg-gray-100 rounded-md text-blue-600 font-medium text-sm flex items-center gap-1 transition-colors"
+                      >
+                        {copiedText === (paymentData?.orderCode?.toString() || '') ? (
+                          <><Check className="w-4 h-4 text-green-600" /> <span className="text-green-600">Đã chép</span></>
+                        ) : (
+                          <><Copy className="w-4 h-4" /> Sao chép</>
+                        )}
+                      </button>
                     </div>
                   </div>
                 )}
@@ -585,9 +560,9 @@ export function PaymentModal() {
 
               </div>
 
-              {/* 7. TRẠNG THÁI THANH TOÁN */}
+              {/* 5. TRẠNG THÁI THANH TOÁN */}
               <div className="space-y-2.5 pt-1">
-                <h3 className="text-[12px] font-extrabold text-slate-800 uppercase tracking-wide">7. Trạng thái thanh toán</h3>
+                <h3 className="text-[12px] font-extrabold text-slate-800 uppercase tracking-wide">5. Trạng thái thanh toán</h3>
 
                 {orderStatus === 'pending' ? (
                   <div className="flex items-center justify-between p-4 rounded-2xl border border-slate-200 bg-white shadow-sm relative overflow-hidden">

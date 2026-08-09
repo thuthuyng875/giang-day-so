@@ -30,7 +30,7 @@ export async function Footer() {
                 <GraduationCap className="h-4 w-4" />
               </span>
               <span className="text-lg font-bold text-white">
-                Tài Liệu Giảng Dạy 365
+                GiangDaySo.com
               </span>
             </Link>
             <p className="text-[13px] leading-relaxed text-slate-200">
@@ -78,10 +78,10 @@ export async function Footer() {
               <li className="flex gap-3">
                 <Mail className="mt-0.5 h-4 w-4 shrink-0 text-slate-400" />
                 <a
-                  href="mailto:hotro@tailieugiangday365.com"
+                  href="mailto:hotro.giangdayso@gmail.com"
                   className="break-all transition-colors hover:text-orange-500"
                 >
-                  hotro@tailieugiangday365.com
+                  hotro.giangdayso@gmail.com
                 </a>
               </li>
               <li className="flex gap-3">
@@ -97,7 +97,7 @@ export async function Footer() {
         </div>
 
         <div className="mt-8 border-t border-slate-800 pt-6 text-center text-[13px] text-slate-200">
-          © 2026 Tài Liệu Giảng Dạy 365. Tất cả các quyền được bảo lưu.
+          © 2026 Giảng Dạy Số. Tất cả các quyền được bảo lưu.
         </div>
       </div>
     </footer>

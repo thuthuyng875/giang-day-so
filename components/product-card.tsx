@@ -16,7 +16,9 @@ type ProductCardProps = {
     id: string;
     name: string;
     category: string | null;
-    price: number;
+    price?: number;
+    sale_price?: number;
+    original_price?: number;
     image_url: string | null;
     preview_url?: string | null;
     view_count?: number | null;
@@ -114,7 +116,8 @@ export function ProductCard({ product, layout = "vertical" }: ProductCardProps) 
     document.body
   );
 
-  const oldPrice = Math.round((product.price * 1.22) / 5000) * 5000;
+  const currentPrice = product.sale_price ?? product.price ?? 0;
+  const oldPrice = product.original_price ?? (Math.round((currentPrice * 1.22) / 5000) * 5000);
 
   if (layout === "horizontal") {
     return (
@@ -183,7 +186,7 @@ export function ProductCard({ product, layout = "vertical" }: ProductCardProps) 
             {/* Prices */}
             <div className="flex items-baseline gap-2 mt-1">
               <span className="text-red-600 font-extrabold text-sm">
-                {formatCurrencyVND(product.price)}
+                {formatCurrencyVND(currentPrice)}
               </span>
               <span className="text-[11px] text-slate-400 line-through font-normal">
                 {formatCurrencyVND(oldPrice)}
@@ -285,7 +288,7 @@ export function ProductCard({ product, layout = "vertical" }: ProductCardProps) 
         {/* Prices */}
         <div className="flex items-baseline gap-2 mt-1">
           <span className="text-red-600 font-extrabold text-sm">
-            {formatCurrencyVND(product.price)}
+            {formatCurrencyVND(currentPrice)}
           </span>
           <span className="text-[11px] text-slate-400 line-through font-normal">
             {formatCurrencyVND(oldPrice)}

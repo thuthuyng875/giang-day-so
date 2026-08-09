@@ -341,12 +341,12 @@ export async function POST(request: Request) {
       <div style="max-width:560px;margin:0 auto;background:#ffffff;border:1px solid #e5e7eb;border-radius:16px;overflow:hidden;">
         <div style="padding:20px 20px;background:linear-gradient(135deg,#16a34a,#22c55e);color:#fff;">
           <div style="font-size:18px;font-weight:700;letter-spacing:0.2px;">Thanh toán thành công</div>
-          <div style="margin-top:6px;font-size:13px;opacity:0.95;">Cảm ơn bạn đã ủng hộ Digital Docs</div>
+          <div style="margin-top:6px;font-size:13px;opacity:0.95;">Cảm ơn bạn đã ủng hộ Giảng Dạy Số /div>
         </div>
         <div style="padding:22px 20px;color:#111827;">
           <h3>🎉 Kích hoạt thành công Gói cập nhật tài liệu!</h3>
           <p>Cảm ơn Thầy/Cô đã mua bộ tài liệu <b>${productName}</b>.</p>
-          <p>Thầy/Cô vui lòng bấm vào nút bên dưới để truy cập vào Drive lưu trữ. Bất cứ khi nào có bản cập nhật mới, Tài Liệu Giảng Dạy 365 sẽ thêm ngay vào thư mục này mà Thầy/Cô sẽ không cần thao tác gì thêm.</p>
+          <p>Thầy/Cô vui lòng bấm vào nút bên dưới để truy cập vào Drive lưu trữ. Ngay khi có tài liệu cập nhật mới, chúng tôi sẽ thêm vào Drive này mà Thầy/Cô không cần thao tác gì thêm!</p>
           <div style="text-align:center;margin:18px 0 8px 0;">
             <a href="${accessLink}" target="_blank" rel="noreferrer"
                style="background-color: #16a34a; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">
@@ -355,7 +355,7 @@ export async function POST(request: Request) {
           </div>
         </div>
         <div style="padding:14px 20px;border-top:1px solid #e5e7eb;color:#9ca3af;font-size:12px;">
-          Digital Docs • Email tự động từ hệ thống
+          Giảng Dạy Số • Email tự động từ hệ thống
         </div>
       </div>
     </div>
@@ -373,12 +373,12 @@ export async function POST(request: Request) {
       <div style="max-width:560px;margin:0 auto;background:#ffffff;border:1px solid #e5e7eb;border-radius:16px;overflow:hidden;">
         <div style="padding:20px 20px;background:linear-gradient(135deg,#16a34a,#22c55e);color:#fff;">
           <div style="font-size:18px;font-weight:700;letter-spacing:0.2px;">Thanh toán thành công</div>
-          <div style="margin-top:6px;font-size:13px;opacity:0.95;">Cảm ơn bạn đã ủng hộ Digital Docs</div>
+          <div style="margin-top:6px;font-size:13px;opacity:0.95;">Cảm ơn Thầy/Cô đã ủng hộ Giảng Dạy Số! </div>
         </div>
         <div style="padding:22px 20px;color:#111827;">
           <p style="margin:0 0 12px 0;font-size:14px;line-height:1.6;">
             Xin chào,<br/>
-            Cảm ơn bạn đã thanh toán thành công. Dưới đây là link tải tài liệu của bạn:
+            Thanh toán thành công. Dưới đây là link tải tài liệu của Thầy/Cô:
           </p>
           <div style="margin:14px 0 6px 0;padding:12px 14px;border:1px solid #e5e7eb;border-radius:12px;background:#f9fafb;">
             <div style="font-size:12px;color:#6b7280;margin-bottom:4px;">Tên tài liệu</div>
@@ -391,14 +391,14 @@ export async function POST(request: Request) {
             </a>
           </div>
           <p style="margin:12px 0 0 0;font-size:13px;line-height:1.6;color:#b91c1c;font-weight:700;">
-            Link tải chỉ có hiệu lực trong 24 giờ. Vui lòng tải xuống máy tính của bạn.
+            Link tải chỉ có hiệu lực trong 24 giờ. Vui lòng tải xuống máy tính của Thầy/Cô.
           </p>
           <p style="margin:14px 0 0 0;font-size:12px;line-height:1.6;color:#6b7280;">
-            Nếu bạn gặp vấn đề khi tải file, hãy phản hồi email này để được hỗ trợ.
+            Nếu Thầy/Cô gặp vấn đề khi tải file, hãy phản hồi email này để được hỗ trợ!
           </p>
         </div>
         <div style="padding:14px 20px;border-top:1px solid #e5e7eb;color:#9ca3af;font-size:12px;">
-          Digital Docs • Email tự động từ hệ thống
+          Giảng Dạy Số • Email tự động từ hệ thống
         </div>
       </div>
     </div>
@@ -409,7 +409,7 @@ export async function POST(request: Request) {
               await resend.emails.send({
                 from: 'onboarding@resend.dev',
                 to: customerEmail,
-                subject: '🎁 Thanh toán thành công! Đây là tài liệu của bạn',
+                subject: '🎁 Thanh toán thành công! Đây là tài liệu của Thầy/Cô',
                 html,
               });
             }

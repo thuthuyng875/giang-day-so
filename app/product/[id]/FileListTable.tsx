@@ -40,7 +40,7 @@ export function FileListTable({ includedFiles, product }: FileListTableProps) {
                   {fileType}
                 </span>
               </div>
-              <span className="font-semibold text-[#0F172A] line-clamp-1" title={file}>
+              <span className="font-semibold text-[#0F172A] text-[11.5px] line-clamp-1" title={file}>
                 {file}
               </span>
             </div>

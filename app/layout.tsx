@@ -17,8 +17,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Digital Documents Store",
-  description: "Catalog tai lieu so voi thanh toan nhanh",
+  title: "Giảng Dạy Số",
+  description: "Kho tài liệu, giáo án và đề thi chất lượng cao"
 };
 
 export default function RootLayout({

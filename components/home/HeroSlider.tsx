@@ -31,14 +31,14 @@ export function HeroSlider({ banners }: { banners: Banner[] }) {
 
   if (activeBanners.length === 0) {
     return (
-      <div className="w-full aspect-[21/9] md:aspect-[4/1] lg:aspect-[5/1] bg-slate-200 animate-pulse rounded-[12px] flex items-center justify-center">
+      <div className="w-full aspect-[16/6] md:aspect-[3/1] lg:aspect-[3.5/1] bg-slate-200 animate-pulse rounded-lg flex items-center justify-center">
         <Loader2 className="w-8 h-8 text-slate-400 animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="relative w-full aspect-[21/9] md:aspect-[4/1] lg:aspect-[5/1] rounded-[12px] overflow-hidden group">
+    <div className="relative w-full aspect-[16/6] md:aspect-[3/1] lg:aspect-[3.5/1] rounded-lg overflow-hidden group shadow-sm border border-gray-100">
       {/* Slides Wrapper */}
       <div 
         className="flex w-full h-full transition-transform duration-700 ease-in-out"

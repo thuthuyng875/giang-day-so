@@ -31,7 +31,7 @@ function renderRichText(text: string) {
   return (
     <div className="flex flex-col gap-1">
       {lines.map((line, i) => (
-        <p key={i} className="text-[#475569] leading-[1.7]">{line}</p>
+        <p key={i} className="text-[#475569] text-[13px] leading-relaxed">{line}</p>
       ))}
     </div>
   );
@@ -54,14 +54,14 @@ export function ProductTabs({
   };
 
   return (
-    <div className="bg-white rounded-xl border border-[#ECECEC] p-6">
+    <div className="bg-white rounded-xl border border-[#ECECEC] p-4 md:p-5">
       {/* ── TAB NAV ── */}
-      <div className="flex gap-6 border-b border-[#ECECEC] mb-6 overflow-x-auto scrollbar-hide">
+      <div className="flex gap-4 md:gap-6 border-b border-[#ECECEC] mb-4 overflow-x-auto scrollbar-hide">
         {TABS.map((tab) => (
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
-            className={`h-[48px] text-sm font-semibold whitespace-nowrap border-b-[3px] transition-all ${activeTab === tab.key
+            className={`py-2 text-[13px] font-medium whitespace-nowrap border-b-[2px] transition-all ${activeTab === tab.key
               ? "border-[#2563EB] text-[#2563EB]"
               : "border-transparent text-[#94A3B8] hover:text-[#475569]"
               }`}
@@ -77,7 +77,7 @@ export function ProductTabs({
         {/* Top: Text content */}
         <div className="w-full flex flex-col gap-6">
           <div>
-            <h3 className="text-base font-bold text-[#0F172A] mb-3">
+            <h3 className="text-[14px] font-bold text-[#0F172A] mb-2">
               {activeTab === "intro" && "Giới thiệu tài liệu"}
               {activeTab === "content" && "Nội dung tài liệu"}
               {activeTab === "audience" && "Đối tượng phù hợp"}
@@ -92,8 +92,8 @@ export function ProductTabs({
         {/* Bottom: File list */}
         <div className="w-full">
           {includedFiles && (
-            <div className="bg-white rounded-xl border border-[#ECECEC] p-5">
-              <h3 className="text-base font-bold text-[#0F172A] mb-4">
+            <div className="bg-white rounded-xl border border-[#ECECEC] p-4">
+              <h3 className="text-[14px] font-bold text-[#0F172A] mb-3">
                 Danh sách file có trong bộ tài liệu
               </h3>
               <FileListTable includedFiles={includedFiles} product={product} />

@@ -16,12 +16,15 @@ const GRADES = [
 ];
 
 const DOC_TYPES = [
-  "Tài liệu theo môn", "Đề thi thử TN THPT", "Đề thi thử ĐGNL", "Giáo án"
+  "Tài liệu theo môn", "Đề thi thử TN THPT", "Đề thi thử ĐGNL", "Giáo án",
+  "Chuyên đề bài tập", "Đề kiểm tra GK - CK", "Ôn thi TN THPTQG", "Ôn thi HSG", "Bài giảng PowerPoint", "Giáo án Word"
 ];
 
 export default function AddProductPage() {
   const [name, setName] = useState("");
-  const [price, setPrice] = useState("");
+  const [originalPrice, setOriginalPrice] = useState("");
+  const [salePrice, setSalePrice] = useState("");
+  const [previewPagesCount, setPreviewPagesCount] = useState("");
   const [subject, setSubject] = useState(SUBJECTS[0]);
   const [grade, setGrade] = useState(GRADES[0]);
   const [docType, setDocType] = useState(DOC_TYPES[0]);
@@ -42,7 +45,7 @@ export default function AddProductPage() {
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!name || !price || !subject || !grade || !docType) {
+    if (!name || !salePrice || !subject || !grade || !docType) {
       setMessage({ type: "error", text: "Vui lòng nhập đầy đủ thông tin cơ bản." });
       return;
     }
@@ -119,7 +122,9 @@ export default function AddProductPage() {
       // 4. Create Product in Supabase
       const newProduct = {
         name,
-        price: Number(price),
+        original_price: originalPrice ? parseInt(originalPrice, 10) : 0,
+        sale_price: salePrice ? parseInt(salePrice, 10) : 0,
+        preview_pages_count: previewPagesCount ? parseInt(previewPagesCount, 10) : 0,
         subject,
         grade,
         docType,
@@ -143,7 +148,9 @@ export default function AddProductPage() {
 
       // Clear form
       setName("");
-      setPrice("");
+      setOriginalPrice("");
+      setSalePrice("");
+      setPreviewPagesCount("");
       setDescription("");
       setIncludedFiles("");
       setSubject(SUBJECTS[0]);
@@ -201,20 +208,37 @@ export default function AddProductPage() {
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-semibold text-slate-700 mb-2 flex items-center gap-1">
-              Giá tiền (VNĐ)
-            </label>
-            <div className="relative">
-              <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-              <input
-                type="number"
-                value={price}
-                onChange={(e) => setPrice(e.target.value)}
-                placeholder="VD: 50000"
-                className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow text-slate-800"
-                required
-              />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-semibold text-slate-700 mb-2 flex items-center gap-1">
+                Giá gốc (Original Price)
+              </label>
+              <div className="relative">
+                <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                <input
+                  type="number"
+                  value={originalPrice}
+                  onChange={(e) => setOriginalPrice(e.target.value)}
+                  placeholder="VD: 100000"
+                  className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow text-slate-800"
+                />
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-slate-700 mb-2 flex items-center gap-1">
+                Giá bán (Sale Price)
+              </label>
+              <div className="relative">
+                <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                <input
+                  type="number"
+                  value={salePrice}
+                  onChange={(e) => setSalePrice(e.target.value)}
+                  placeholder="VD: 80000"
+                  className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow text-slate-800"
+                  required
+                />
+              </div>
             </div>
           </div>
 
@@ -254,19 +278,36 @@ export default function AddProductPage() {
             </div>
           </div>
 
-          <div>
-            <label className="block text-sm font-semibold text-slate-700 mb-2 flex items-center gap-1">
-              Dung lượng File - Tùy chọn
-            </label>
-            <div className="relative">
-              <Package className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-              <input
-                type="text"
-                value={fileSize}
-                onChange={(e) => setFileSize(e.target.value)}
-                placeholder="VD: 2.5 MB hoặc 1.2 GB"
-                className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow text-slate-800"
-              />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-semibold text-slate-700 mb-2 flex items-center gap-1">
+                Dung lượng File
+              </label>
+              <div className="relative">
+                <Package className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                <input
+                  type="text"
+                  value={fileSize}
+                  onChange={(e) => setFileSize(e.target.value)}
+                  placeholder="VD: 2.5 MB"
+                  className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow text-slate-800"
+                />
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-slate-700 mb-2 flex items-center gap-1">
+                Số trang xem thử
+              </label>
+              <div className="relative">
+                <FileText className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                <input
+                  type="number"
+                  value={previewPagesCount}
+                  onChange={(e) => setPreviewPagesCount(e.target.value)}
+                  placeholder="VD: 5"
+                  className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow text-slate-800"
+                />
+              </div>
             </div>
           </div>
 

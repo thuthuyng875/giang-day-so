@@ -89,35 +89,35 @@ export function ProductDetailActions({ product, previewHref }: ProductDetailActi
   return (
     <>
       {/* Desktop Buttons */}
-      <div className="flex flex-col sm:flex-row gap-3">
+      <div className="flex flex-col sm:flex-row gap-2.5">
         <button
           onClick={() => setIsPreviewOpen(true)}
-          className="flex-1 py-2.5 rounded-[12px] border-2 border-[#2563EB] text-[#2563EB] flex items-center justify-center text-sm font-semibold gap-2 hover:bg-[#F8FAFC] hover:-translate-y-[1px] transition-all bg-white"
+          className="flex-1 py-2 rounded-[10px] border-2 border-[#2563EB] text-[#2563EB] flex items-center justify-center text-[13px] font-bold gap-1.5 hover:bg-[#F8FAFC] hover:-translate-y-[1px] transition-all bg-white"
         >
-          <Eye className="w-4 h-4" /> XEM THỬ
+          <Eye className="w-3.5 h-3.5" /> XEM THỬ
         </button>
         <button
           onClick={() => openPaymentModal(product)}
-          className="flex-1 py-2.5 rounded-[12px] bg-[#FBBF24] text-[#0F172A] flex items-center justify-center text-sm font-semibold gap-2 shadow-[0_4px_12px_rgba(251,191,36,0.2)] hover:bg-[#F59E0B] hover:-translate-y-[1px] transition-all"
+          className="flex-1 py-2 rounded-[10px] bg-[#FBBF24] text-[#0F172A] flex items-center justify-center text-[13px] font-bold gap-1.5 shadow-[0_4px_12px_rgba(251,191,36,0.2)] hover:bg-[#F59E0B] hover:-translate-y-[1px] transition-all"
         >
-          <ShoppingCart className="w-4 h-4" /> MUA NGAY
+          <ShoppingCart className="w-3.5 h-3.5" /> MUA NGAY
         </button>
       </div>
 
       {/* Mobile Sticky Bottom Bar Buttons */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-[#ECECEC] p-4 flex gap-3 z-50 shadow-[0_-4px_20px_rgba(15,23,42,0.05)]">
+      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-[#ECECEC] p-3 flex gap-2 z-50 shadow-[0_-4px_20px_rgba(15,23,42,0.05)]">
         <button
           onClick={() => setIsPreviewOpen(true)}
-          className="h-[50px] flex-[2] flex items-center justify-center gap-2 rounded-[12px] border-2 border-[#2563EB] text-[#2563EB] font-bold text-[14px] bg-white"
+          className="h-[44px] flex-[2] flex items-center justify-center gap-1.5 rounded-[10px] border-2 border-[#2563EB] text-[#2563EB] font-bold text-[13px] bg-white"
         >
-          <Eye className="w-[18px] h-[18px]" />
+          <Eye className="w-4 h-4" />
           <span>XEM THỬ</span>
         </button>
         <button
           onClick={() => openPaymentModal(product)}
-          className="h-[50px] flex-[3] flex items-center justify-center gap-2 rounded-[12px] bg-[#FBBF24] text-[#0F172A] font-bold text-[14px] shadow-sm"
+          className="h-[44px] flex-[3] flex items-center justify-center gap-1.5 rounded-[10px] bg-[#FBBF24] text-[#0F172A] font-bold text-[13px] shadow-sm"
         >
-          <ShoppingCart className="w-[18px] h-[18px]" />
+          <ShoppingCart className="w-4 h-4" />
           <span>MUA NGAY</span>
         </button>
       </div>
