@@ -174,6 +174,8 @@ export default async function ProductDetailPage({ params }: PageProps) {
   const galleryImages = [product.image_url];
   if (pdfThumbnail) {
     galleryImages.push(pdfThumbnail);
+    // Push a 3rd image (duplicate of pdf thumbnail) to act as the "View more pages" trigger
+    galleryImages.push(pdfThumbnail);
   }
   const filteredImages = galleryImages.filter(Boolean);
 
@@ -245,7 +247,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
                       <div className="flex items-center gap-2">
                         <div className="flex gap-1">
                           {[...Array(5)].map((_, i) => (
-                            <Star key={i} className={`w-3.5 h-3.5 ${i === 4 ? "fill-[#FBBF24]/50 text-[#FBBF24]" : "fill-[#FBBF24] text-[#FBBF24]"}`} />
+                            <Star key={i} className="w-3.5 h-3.5 fill-[#FBBF24] text-[#FBBF24]" />
                           ))}
                         </div>
                         <span className="text-sm font-bold text-[#EF4444]">4.9</span>

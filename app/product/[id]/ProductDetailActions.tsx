@@ -67,7 +67,7 @@ export function ProductDetailActions({ product, previewHref }: ProductDetailActi
         </button>
 
         <div
-          className="w-full max-w-5xl h-[80vh] md:h-[90vh] bg-white rounded-xl overflow-hidden shadow-2xl relative"
+          className="w-full max-w-2xl h-[80vh] md:h-[90vh] bg-white rounded-xl overflow-hidden shadow-2xl relative"
           onClick={(e) => e.stopPropagation()}
         >
           {iframeSrc ? (
@@ -91,6 +91,7 @@ export function ProductDetailActions({ product, previewHref }: ProductDetailActi
       {/* Desktop Buttons */}
       <div className="flex flex-col sm:flex-row gap-2.5">
         <button
+          id="preview-btn-desktop"
           onClick={() => setIsPreviewOpen(true)}
           className="flex-1 py-2 rounded-[10px] border-2 border-[#2563EB] text-[#2563EB] flex items-center justify-center text-[13px] font-bold gap-1.5 hover:bg-[#F8FAFC] hover:-translate-y-[1px] transition-all bg-white"
         >

@@ -31,13 +31,13 @@ export function ProductGallery({ images, productName, isDynamic, infoContent, ac
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start w-full">
       {/* Left Column: Image & Thumbnails */}
       <div className="lg:col-span-5 w-full flex flex-col">
-        
+
         {/* Outer Wrapper for Image & Thumbnails */}
         <div className="w-full bg-white border border-[#ECECEC] rounded-[16px] p-5 lg:p-6 flex flex-col gap-6 relative">
-          
+
           {/* Main Image Container */}
           <div className="relative w-full flex items-center justify-center">
-            
+
             {/* Arrows (Positioned at edges of container) */}
             {images.length > 1 && (
               <button
@@ -70,7 +70,7 @@ export function ProductGallery({ images, productName, isDynamic, infoContent, ac
                 <div className="relative inline-block rounded-md overflow-hidden bg-white shadow-[4px_4px_16px_rgba(0,0,0,0.1)] border border-gray-100 transition-transform duration-500 group-hover:scale-[1.02]">
                   {/* Fake Book Spine effect */}
                   <div className="absolute left-0 top-0 bottom-0 w-[4px] bg-black/5 z-10" />
-                  
+
                   <img
                     src={mainImage}
                     alt={productName}
@@ -90,19 +90,34 @@ export function ProductGallery({ images, productName, isDynamic, infoContent, ac
           {hasImages && (
             <div className="flex items-center justify-center gap-3 w-full">
               <div className="flex items-center gap-3 overflow-hidden justify-center flex-1">
-                {images.map((img, idx) => (
-                  <div
-                    key={idx}
-                    onClick={() => setCurrentIndex(idx)}
-                    className={`w-[60px] h-[60px] rounded-[10px] overflow-hidden relative cursor-pointer bg-white transition-all shrink-0 shadow-sm ${
-                      currentIndex === idx
+                {images.slice(0, 3).map((img, idx) => {
+                  const isLastVisible = idx === 2 && images.length >= 3;
+
+                  return (
+                    <div
+                      key={idx}
+                      onClick={() => {
+                        if (isLastVisible) {
+                          document.getElementById('preview-btn-desktop')?.click();
+                        } else {
+                          setCurrentIndex(idx);
+                        }
+                      }}
+                      className={`w-[60px] h-[60px] rounded-[10px] overflow-hidden relative cursor-pointer bg-white transition-all shrink-0 shadow-sm flex items-center justify-center ${currentIndex === idx && !isLastVisible
                         ? "border-2 border-[#2563EB]"
                         : "border border-[#ECECEC] opacity-70 hover:opacity-100"
-                    }`}
-                  >
-                    <Image src={img} alt={`Thumb ${idx + 1}`} fill sizes="60px" className="object-cover" />
-                  </div>
-                ))}
+                        }`}
+                    >
+                      <img src={img} alt={`Thumb ${idx + 1}`} referrerPolicy="no-referrer" className="w-full h-full object-cover" />
+                      {isLastVisible && (
+                        <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center text-white">
+                          <span className="text-[14px] font-bold">+</span>
+                          <span className="text-[9px] font-semibold mt-0.5">Xem thêm</span>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}
