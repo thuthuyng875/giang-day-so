@@ -11,30 +11,7 @@ type PaymentData = {
   qrCode: string;
 };
 
-type UpsellItem = {
-  id: string;
-  name: string;
-  price: number;
-  oldPrice: number;
-  image_url: string;
-};
 
-const STATIC_UPSELLS: UpsellItem[] = [
-  {
-    id: 'u1',
-    name: 'BỘ 20 ĐỀ LUYỆN THI THPTQG MÔN VẬT LÝ 2026',
-    price: 120000,
-    oldPrice: 170000,
-    image_url: 'https://via.placeholder.com/80x100/2563EB/ffffff?text=De+Thi'
-  },
-  {
-    id: 'u2',
-    name: 'TỔNG HỢP LÝ THUYẾT TRỌNG TÂM VẬT LÝ 12',
-    price: 79000,
-    oldPrice: 113000,
-    image_url: 'https://via.placeholder.com/80x100/10B981/ffffff?text=Ly+Thuyet'
-  }
-];
 
 export function PaymentModal() {
   const { isModalOpen, selectedProduct, closePaymentModal } = usePayment();
@@ -42,7 +19,6 @@ export function PaymentModal() {
   // Left Column States
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
-  const [selectedUpsells, setSelectedUpsells] = useState<Set<string>>(new Set()); // Default empty
 
   // Right Column States
   const [paymentTab, setPaymentTab] = useState<'qr' | 'manual'>('qr');
@@ -60,7 +36,6 @@ export function PaymentModal() {
     if (isModalOpen) {
       setEmail('');
       setLoading(false);
-      setSelectedUpsells(new Set()); // Default empty
       setPaymentData(null);
       setOrderStatus('pending');
       setSignedUrl('');
@@ -84,38 +59,16 @@ export function PaymentModal() {
 
   const totalAmount = useMemo(() => {
     if (!selectedProduct) return 0;
-    let total = baseProductPrice;
-    STATIC_UPSELLS.forEach(upsell => {
-      if (selectedUpsells.has(upsell.id)) {
-        total += upsell.price;
-      }
-    });
-    return total;
-  }, [selectedProduct, selectedUpsells, baseProductPrice]);
+    return baseProductPrice;
+  }, [selectedProduct, baseProductPrice]);
 
   const oldTotalAmount = useMemo(() => {
     if (!selectedProduct) return 0;
-    let old = (selectedProduct as any).original_price ?? Math.round((baseProductPrice * 1.25) / 5000) * 5000;
-    STATIC_UPSELLS.forEach(upsell => {
-      if (selectedUpsells.has(upsell.id)) {
-        old += upsell.oldPrice;
-      }
-    });
-    return old;
-  }, [selectedProduct, selectedUpsells, baseProductPrice]);
+    return (selectedProduct as any).original_price ?? Math.round((baseProductPrice * 1.25) / 5000) * 5000;
+  }, [selectedProduct, baseProductPrice]);
 
   const savedAmount = oldTotalAmount > totalAmount ? oldTotalAmount - totalAmount : 0;
   const discountPercent = oldTotalAmount > 0 ? Math.round((savedAmount / oldTotalAmount) * 100) : 0;
-
-  const toggleUpsell = (id: string) => {
-    const newSet = new Set(selectedUpsells);
-    if (newSet.has(id)) {
-      newSet.delete(id);
-    } else {
-      newSet.add(id);
-    }
-    setSelectedUpsells(newSet);
-  };
 
   const handlePayment = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -265,7 +218,7 @@ export function PaymentModal() {
 
                 {/* Summary quick stats */}
                 <div className="flex items-center justify-between px-3 py-2 border-t border-slate-100 text-[11px] font-medium text-slate-600 bg-white">
-                  <div className="flex items-center gap-1"><ShieldCheck className="w-3.5 h-3.5 text-slate-400" /> {selectedUpsells.size + 1} sản phẩm</div>
+                  <div className="flex items-center gap-1"><ShieldCheck className="w-3.5 h-3.5 text-slate-400" /> 1 sản phẩm</div>
                   <div className="flex items-center gap-1"><Zap className="w-3.5 h-3.5 text-yellow-500" /> Giảm giá {discountPercent}%</div>
                   <div className="flex items-center gap-1"><Star className="w-3.5 h-3.5 text-green-500" /> Tiết kiệm {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(savedAmount)}</div>
                 </div>
@@ -275,14 +228,6 @@ export function PaymentModal() {
                     <span className="text-slate-700 font-medium line-clamp-1">{selectedProduct.name}</span>
                     <span className="font-bold text-slate-900 shrink-0">{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(baseProductPrice)}</span>
                   </div>
-                  {STATIC_UPSELLS.filter(u => selectedUpsells.has(u.id)).map(upsell => (
-                    <div key={upsell.id} className="flex justify-between items-start gap-4">
-                      <span className="text-slate-600 line-clamp-1 flex items-center gap-1.5">
-                        <Check className="w-3 h-3 text-green-500" /> {upsell.name}
-                      </span>
-                      <span className="font-bold text-slate-900 shrink-0">{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(upsell.price)}</span>
-                    </div>
-                  ))}
                   <div className="border-t border-slate-200/80 pt-2.5 flex justify-between items-center font-extrabold text-slate-800">
                     <span>Tổng cộng</span>
                     <span className="text-red-600 text-[18px] font-black tracking-tight">{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(totalAmount)}</span>
@@ -290,46 +235,9 @@ export function PaymentModal() {
                 </div>
               </div>
 
-              {/* 2. GỢI Ý MUA KÈM */}
-              <div className="space-y-2.5">
-                <div className="flex items-center gap-2">
-                  <h3 className="text-[12px] font-extrabold text-slate-800 uppercase tracking-wide">2. Gợi ý mua kèm</h3>
-                  <span className="text-[9px] font-bold text-orange-700 bg-orange-100 px-1.5 py-0.5 rounded border border-orange-200 uppercase">Tiết kiệm 30%</span>
-                </div>
-                <div className="space-y-2">
-                  {STATIC_UPSELLS.map(upsell => {
-                    const isChecked = selectedUpsells.has(upsell.id);
-                    return (
-                      <label
-                        key={upsell.id}
-                        className={`flex items-center gap-3 p-2 rounded-xl border cursor-pointer transition-all duration-200 ${isChecked ? 'bg-blue-50/30 border-blue-400 shadow-sm' : 'bg-white border-slate-200 hover:border-blue-200'}`}
-                      >
-                        <div className="relative flex items-center justify-center shrink-0 ml-1">
-                          <input
-                            type="checkbox"
-                            checked={isChecked}
-                            onChange={() => toggleUpsell(upsell.id)}
-                            className="peer appearance-none w-4 h-4 border-2 border-slate-300 rounded hover:border-blue-500 checked:bg-blue-600 checked:border-blue-600 transition-colors cursor-pointer"
-                          />
-                          <Check className="absolute w-3 h-3 text-white opacity-0 peer-checked:opacity-100 pointer-events-none" strokeWidth={3} />
-                        </div>
-                        <img src={upsell.image_url} alt={upsell.name} className="w-9 h-11 object-cover rounded border border-slate-200 shrink-0" />
-                        <div className="flex-1 flex flex-col justify-center min-w-0">
-                          <h4 className="text-[11px] font-bold text-slate-700 line-clamp-1 leading-tight">{upsell.name}</h4>
-                          <div className="flex items-baseline gap-2 mt-1">
-                            <span className="text-[12px] font-extrabold text-red-600">{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(upsell.price)}</span>
-                            <span className="text-[10px] font-semibold text-slate-400 line-through">{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(upsell.oldPrice)}</span>
-                          </div>
-                        </div>
-                      </label>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* 3. FORM THU THẬP EMAIL & CTA */}
+              {/* 2. FORM THU THẬP EMAIL & CTA */}
               <div className="space-y-2.5 pt-1">
-                <h3 className="text-[12px] font-extrabold text-slate-800 uppercase tracking-wide">3. Thông tin nhận tài liệu</h3>
+                <h3 className="text-[12px] font-extrabold text-slate-800 uppercase tracking-wide">2. Thông tin nhận tài liệu</h3>
                 <form id="payment-form" onSubmit={handlePayment} className="space-y-3">
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
@@ -385,7 +293,7 @@ export function PaymentModal() {
           <div className="w-full lg:w-[55%] flex flex-col p-5 lg:overflow-y-auto relative">
             <div className="max-w-xl mx-auto w-full space-y-5">
 
-              <h3 className="text-[12px] font-extrabold text-slate-800 uppercase tracking-wide">4. Chọn phương thức thanh toán</h3>
+              <h3 className="text-[12px] font-extrabold text-slate-800 uppercase tracking-wide">3. Chọn phương thức thanh toán</h3>
 
               {/* TABS */}
               <div className="grid grid-cols-2 gap-3 relative z-10">
@@ -425,32 +333,32 @@ export function PaymentModal() {
                 {/* TAB CONTENT: QR */}
                 {paymentTab === 'qr' && (
                   <div className="w-full flex flex-col">
-                    <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-md max-w-sm mx-auto flex flex-col items-center w-full">
+                    <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-md max-w-sm mx-auto flex flex-col items-center w-full">
                       {/* Top Logo */}
-                      <img src="/images/qr/vietqr-text.png" alt="VietQR" className="h-6 mb-4 object-contain" />
+                      <img src="/images/qr/vietqr-text.png" alt="VietQR" className="h-5 mb-3 object-contain" />
 
                       {/* QR Code */}
-                      <div className="border-2 border-[#1B3687] p-2 bg-white mb-4 relative">
+                      <div className="border-2 border-[#1B3687] p-1.5 bg-white mb-3 relative">
                         {paymentData?.qrCode ? (
                           <QRCodeCanvas
                             id="payment-qr-code"
                             value={paymentData.qrCode}
-                            size={250}
+                            size={180}
                             level="H"
-                            imageSettings={{ src: "/images/qr/v-icon.png", height: 30, width: 30, excavate: true }}
+                            imageSettings={{ src: "/images/qr/v-icon.png", height: 24, width: 24, excavate: true }}
                           />
                         ) : (
-                          <div className="w-[250px] h-[250px] bg-slate-100 animate-pulse flex items-center justify-center">
-                            <span className="text-slate-400 font-medium text-[13px]">Đang tải mã QR...</span>
+                          <div className="w-[180px] h-[180px] bg-slate-100 animate-pulse flex items-center justify-center">
+                            <span className="text-slate-400 font-medium text-[12px]">Đang tải mã QR...</span>
                           </div>
                         )}
                       </div>
 
                       {/* Bottom Logos */}
-                      <div className="flex flex-row items-center justify-center gap-4 mb-6 w-full">
-                        <img src="/images/qr/napas.png" alt="Napas 247" className="h-6 object-contain" />
-                        <div className="h-8 w-[1px] bg-gray-300"></div>
-                        <img src="/images/qr/bank-logo.png" alt="Bank Logo" className="h-6 object-contain" />
+                      <div className="flex flex-row items-center justify-center gap-3 mb-4 w-full">
+                        <img src="/images/qr/napas.png" alt="Napas 247" className="h-5 object-contain" />
+                        <div className="h-6 w-[1px] bg-gray-300"></div>
+                        <img src="/images/qr/bank-logo.png" alt="Bank Logo" className="h-5 object-contain" />
                       </div>
 
                       {/* Account Details */}
@@ -560,9 +468,9 @@ export function PaymentModal() {
 
               </div>
 
-              {/* 5. TRẠNG THÁI THANH TOÁN */}
+              {/* 4. TRẠNG THÁI THANH TOÁN */}
               <div className="space-y-2.5 pt-1">
-                <h3 className="text-[12px] font-extrabold text-slate-800 uppercase tracking-wide">5. Trạng thái thanh toán</h3>
+                <h3 className="text-[12px] font-extrabold text-slate-800 uppercase tracking-wide">4. Trạng thái thanh toán</h3>
 
                 {orderStatus === 'pending' ? (
                   <div className="flex items-center justify-between p-4 rounded-2xl border border-slate-200 bg-white shadow-sm relative overflow-hidden">

@@ -38,7 +38,8 @@ async function getProductById(id: string) {
 }
 
 async function getRelatedProducts(
-  category: string,
+  categoryId: string | null,
+  categoryName: string,
   grade: string | number | null,
   excludeId: string
 ) {
@@ -46,15 +47,20 @@ async function getRelatedProducts(
   let query = supabase
     .from("products")
     .select("id, name, category, grade, original_price, sale_price, image_url, preview_url, view_count, is_dynamic, access_link")
-    .eq("category", category)
     .neq("id", excludeId)
     .limit(12);
+
+  if (categoryId) {
+    query = query.eq("category_id", categoryId);
+  } else {
+    query = query.eq("category", categoryName);
+  }
 
   if (grade !== null && grade !== undefined) query = query.eq("grade", grade);
 
   const { data, error } = await query;
   if (error || !data || data.length === 0) {
-    return dummyProducts.filter((p) => p.category === category && p.id !== excludeId).slice(0, 12);
+    return dummyProducts.filter((p) => p.category === categoryName && p.id !== excludeId).slice(0, 12);
   }
   return data;
 }
@@ -185,7 +191,8 @@ export default async function ProductDetailPage({ params }: PageProps) {
   const includedFiles = (product as any).included_files ?? null;
 
   const relatedProducts = await getRelatedProducts(
-    product.category ?? "",
+    (product as any).category_id ?? null,
+    category,
     product.grade ?? null,
     product.id
   );
