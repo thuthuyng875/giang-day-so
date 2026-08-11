@@ -305,7 +305,7 @@ export function PaymentModal() {
                     <CheckCircle2 className="w-12 h-12 text-green-500 mb-3" />
                     <h4 className="font-black text-green-700 text-[18px] mb-1.5">Thanh toán thành công!</h4>
                     <p className="text-[13px] text-green-800 font-medium mb-5">
-                      Vui lòng kiểm tra email <strong className="text-black bg-white px-2 py-1 rounded shadow-sm mx-1">{email}</strong> để tải tài liệu.
+                      Link tải dự phòng đã được gửi về email <strong className="text-black bg-white px-2 py-1 rounded shadow-sm mx-1">{email}</strong>
                     </p>
 
                     {isDynamic ? (
@@ -346,7 +346,7 @@ export function PaymentModal() {
           <div className="w-full lg:w-[55%] flex flex-col p-5 lg:overflow-y-auto relative">
             <div className="max-w-xl mx-auto w-full space-y-5">
 
-              <h3 className="text-[12px] font-extrabold text-slate-800 uppercase tracking-wide">4. Chọn phương thức thanh toán</h3>
+              <h3 className="text-[12px] font-extrabold text-slate-800 uppercase tracking-wide">4. Phương thức thanh toán</h3>
 
               {/* TABS */}
               <div className="grid grid-cols-2 gap-3 relative z-10">
