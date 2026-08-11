@@ -99,6 +99,8 @@ export function PaymentModal() {
           amount: totalAmount,
           description: `Thanh toan don ${orderCode}`,
           orderCode: orderCode,
+          productName: selectedProduct.name,
+          productId: selectedProduct.id,
           returnUrl: window.location.href,
           cancelUrl: window.location.href,
         })

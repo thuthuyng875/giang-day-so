@@ -23,6 +23,13 @@ export async function POST(request: Request) {
       description: body.description || "Thanh toan don hang",
       cancelUrl: body.cancelUrl || "http://localhost:3000",
       returnUrl: body.returnUrl || "http://localhost:3000",
+      items: [
+        {
+          name: body.productName ? body.productName.substring(0, 250) : "Tài liệu",
+          quantity: 1,
+          price: Number(body.amount)
+        }
+      ]
     };
 
     console.log("✅ Dữ liệu chuẩn bị gửi PayOS:", paymentLinkRequest);
