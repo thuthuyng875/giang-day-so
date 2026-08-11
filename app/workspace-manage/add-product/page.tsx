@@ -60,7 +60,7 @@ export default function AddProductPage() {
 
     try {
       let previewUrl = "";
-      let accessLink = "";
+      let driveFileId = "";
       let imageUrl = "";
 
       const uploadTasks: Promise<any>[] = [];
@@ -145,12 +145,11 @@ export default function AddProductPage() {
         
         if (!uploadRes.ok) throw new Error("Lỗi upload bản gốc lên Google Drive");
         
-        // Step C: Extract ID and construct link
+        // Step C: Extract ID
         const uploadData = await uploadRes.json();
         const fileId = uploadData.id;
-        const webContentLink = `https://drive.google.com/uc?export=download&id=${fileId}`;
         
-        return { type: 'source', url: webContentLink };
+        return { type: 'source', url: fileId };
       })());
 
       const results = await Promise.all(uploadTasks);
@@ -158,7 +157,7 @@ export default function AddProductPage() {
       results.forEach(res => {
         if (res.type === 'image') imageUrl = res.url;
         if (res.type === 'preview') previewUrl = res.url;
-        if (res.type === 'source') accessLink = res.url;
+        if (res.type === 'source') driveFileId = res.url;
       });
 
       // 4. Create Product in Supabase
@@ -175,7 +174,7 @@ export default function AddProductPage() {
         image_url: imageUrl || null,
         is_dynamic: isDynamic,
         preview_url: previewUrl || null,
-        access_link: accessLink || null,
+        drive_file_id: driveFileId || null,
         file_size: fileSize || null,
         created_at: new Date().toISOString(),
       };

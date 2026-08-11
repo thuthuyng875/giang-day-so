@@ -166,7 +166,7 @@ export async function POST(request: Request) {
 
       const { data: productRow, error: productError } = await supabase
         .from('products')
-        .select('file_url, is_dynamic, access_link')
+        .select('file_url, is_dynamic, drive_file_id')
         .eq('id', productId)
         .maybeSingle();
 
@@ -187,10 +187,11 @@ export async function POST(request: Request) {
           ? Boolean((productRow as { is_dynamic?: unknown }).is_dynamic)
           : false;
 
-      const accessLink =
-        productRow && typeof productRow === 'object' && 'access_link' in productRow
-          ? String((productRow as { access_link?: unknown }).access_link || '')
+      const driveFileId =
+        productRow && typeof productRow === 'object' && 'drive_file_id' in productRow
+          ? String((productRow as { drive_file_id?: unknown }).drive_file_id || '')
           : '';
+      const accessLink = driveFileId ? `https://drive.google.com/open?id=${driveFileId}` : '';
 
       let signedUrl: string | undefined;
 

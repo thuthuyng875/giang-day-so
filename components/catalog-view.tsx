@@ -15,7 +15,7 @@ type ProductRow = {
   price: number;
   image_url: string | null;
   is_dynamic?: boolean;
-  access_link?: string;
+  drive_file_id?: string;
   description?: string | null;
 };
 

@@ -7,6 +7,8 @@ import { HeroSlider, Banner } from "@/components/home/HeroSlider";
 import { SubjectShowcase } from "@/components/SubjectShowcase";
 import { ProductCardGrid } from "@/components/product-card-grid";
 
+export const revalidate = 0;
+
 // --- Types ---
 type CategoryRow = {
   id: string;

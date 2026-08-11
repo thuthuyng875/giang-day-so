@@ -10,7 +10,7 @@ export type DummyProduct = {
   download_count?: number | null;
   description?: string | null;
   is_dynamic?: boolean;
-  access_link?: string;
+  drive_file_id?: string;
 };
 
 export const dummyProducts: DummyProduct[] = [
@@ -27,7 +27,7 @@ export const dummyProducts: DummyProduct[] = [
     description:
       "Tài liệu gồm các đề ôn tập được chia theo từng chuyên đề bám sát chương trình Toán lớp 6.\n\nNội dung chính:\n- Số học: phân số, phép tính, tính chất cơ bản\n- Đại lượng và đo đại lượng\n- Hình học: điểm, đường thẳng, tia, đoạn thẳng; góc cơ bản\n- Thu thập và xử lý dữ liệu\n\nGợi ý sử dụng:\n- Dùng cho ôn tập trên lớp hoặc giao bài về nhà\n- Có thể chia thành nhiều buổi kiểm tra 15 phút/tiết ôn tập.\n\nPhần cuối có ma trận nội dung và đáp án gợi ý để giáo viên dễ đối chiếu.",
     is_dynamic: true,
-    access_link: "https://drive.google.com/drive/folders/1-demo-season-pass-01",
+    drive_file_id: "1-demo-season-pass-01",
   },
   {
     id: "dummy-2",

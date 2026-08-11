@@ -25,7 +25,7 @@ async function getProductById(id: string) {
   const { data, error } = await supabase
     .from("products")
     .select(
-      "id, name, category, grade, original_price, sale_price, image_url, preview_url, view_count, description, included_files, category_id, is_dynamic, access_link, categories(name), created_at, file_size, tab_intro, tab_content, tab_audience"
+      "id, name, category, grade, original_price, sale_price, image_url, preview_url, view_count, description, included_files, category_id, is_dynamic, drive_file_id, categories(name), created_at, file_size, tab_intro, tab_content, tab_audience"
     )
     .eq("id", id)
     .single();
@@ -46,7 +46,7 @@ async function getRelatedProducts(
   const supabase = getSupabaseServerClient();
   let query = supabase
     .from("products")
-    .select("id, name, category, grade, original_price, sale_price, image_url, preview_url, view_count, is_dynamic, access_link")
+    .select("id, name, category, grade, original_price, sale_price, image_url, preview_url, view_count, is_dynamic, drive_file_id")
     .neq("id", excludeId)
     .limit(12);
 

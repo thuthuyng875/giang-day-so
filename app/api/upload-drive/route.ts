@@ -45,7 +45,7 @@ export async function POST(request: Request) {
     if (fileType === "preview") {
       updateData.preview_url = driveResult.webViewLink;
     } else {
-      updateData.access_link = driveResult.webContentLink;
+      updateData.drive_file_id = driveResult.id;
     }
 
     let updatedProduct = null;
