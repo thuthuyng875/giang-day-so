@@ -283,6 +283,59 @@ export function PaymentModal() {
                 </form>
               </div>
 
+              {/* 3. TRẠNG THÁI THANH TOÁN (MOVED TO LEFT) */}
+              <div className="space-y-2.5 pt-1">
+                <h3 className="text-[12px] font-extrabold text-slate-800 uppercase tracking-wide">3. Trạng thái thanh toán</h3>
+
+                {orderStatus === 'pending' ? (
+                  <div className="flex items-center justify-between p-4 rounded-2xl border border-slate-200 bg-white shadow-sm relative overflow-hidden">
+                    <div className="absolute top-0 left-0 h-full w-1 bg-yellow-400"></div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center shrink-0">
+                        <span className="inline-block h-5 w-5 animate-spin rounded-full border-[2.5px] border-slate-400 border-t-transparent" />
+                      </div>
+                      <div>
+                        <h4 className="font-extrabold text-slate-800 text-[14px]">ĐANG CHỜ THANH TOÁN...</h4>
+                        <p className="text-[12px] text-slate-500 mt-0.5">Thầy/Cô vui lòng hoàn tất thanh toán để nhận tài liệu ngay.</p>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center justify-center p-6 rounded-[20px] border-2 border-green-500 bg-green-50 shadow-sm animate-in zoom-in-95 duration-500 text-center">
+                    <CheckCircle2 className="w-12 h-12 text-green-500 mb-3" />
+                    <h4 className="font-black text-green-700 text-[18px] mb-1.5">Thanh toán thành công!</h4>
+                    <p className="text-[13px] text-green-800 font-medium mb-5">
+                      Vui lòng kiểm tra email <strong className="text-black bg-white px-2 py-1 rounded shadow-sm mx-1">{email}</strong> để tải tài liệu.
+                    </p>
+
+                    {isDynamic ? (
+                      <a
+                        href={accessLink}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex h-[44px] items-center justify-center px-8 rounded-xl bg-green-600 text-white font-bold hover:bg-green-700 transition-colors shadow-md gap-2 text-[14px]"
+                      >
+                        <DownloadCloud className="w-4 h-4" /> Mở Drive Tài Liệu
+                      </a>
+                    ) : signedUrl ? (
+                      <a
+                        href={signedUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex h-[44px] items-center justify-center px-8 rounded-xl bg-green-600 text-white font-bold hover:bg-green-700 transition-colors shadow-md gap-2 text-[14px]"
+                      >
+                        <DownloadCloud className="w-4 h-4" /> Tải tài liệu ngay
+                      </a>
+                    ) : (
+                      <div className="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-white border border-green-200 text-[13px] font-bold text-green-700 shadow-sm">
+                        <span className="inline-block h-4 w-4 animate-spin rounded-full border-[2.5px] border-green-500 border-t-transparent" />
+                        Đang tạo link tải...
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
             </div>
           </div>
 
@@ -293,7 +346,7 @@ export function PaymentModal() {
           <div className="w-full lg:w-[55%] flex flex-col p-5 lg:overflow-y-auto relative">
             <div className="max-w-xl mx-auto w-full space-y-5">
 
-              <h3 className="text-[12px] font-extrabold text-slate-800 uppercase tracking-wide">3. Chọn phương thức thanh toán</h3>
+              <h3 className="text-[12px] font-extrabold text-slate-800 uppercase tracking-wide">4. Chọn phương thức thanh toán</h3>
 
               {/* TABS */}
               <div className="grid grid-cols-2 gap-3 relative z-10">
@@ -466,59 +519,6 @@ export function PaymentModal() {
                   </div>
                 </div>
 
-              </div>
-
-              {/* 4. TRẠNG THÁI THANH TOÁN */}
-              <div className="space-y-2.5 pt-1">
-                <h3 className="text-[12px] font-extrabold text-slate-800 uppercase tracking-wide">4. Trạng thái thanh toán</h3>
-
-                {orderStatus === 'pending' ? (
-                  <div className="flex items-center justify-between p-4 rounded-2xl border border-slate-200 bg-white shadow-sm relative overflow-hidden">
-                    <div className="absolute top-0 left-0 h-full w-1 bg-yellow-400"></div>
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center shrink-0">
-                        <span className="inline-block h-5 w-5 animate-spin rounded-full border-[2.5px] border-slate-400 border-t-transparent" />
-                      </div>
-                      <div>
-                        <h4 className="font-extrabold text-slate-800 text-[14px]">ĐANG CHỜ THANH TOÁN...</h4>
-                        <p className="text-[12px] text-slate-500 mt-0.5">Thầy/Cô vui lòng hoàn tất thanh toán để nhận tài liệu ngay.</p>
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="flex flex-col items-center justify-center p-6 rounded-[20px] border-2 border-green-500 bg-green-50 shadow-sm animate-in zoom-in-95 duration-500 text-center">
-                    <CheckCircle2 className="w-12 h-12 text-green-500 mb-3" />
-                    <h4 className="font-black text-green-700 text-[18px] mb-1.5">Thanh toán thành công!</h4>
-                    <p className="text-[13px] text-green-800 font-medium mb-5">
-                      Vui lòng kiểm tra email <strong className="text-black bg-white px-2 py-1 rounded shadow-sm mx-1">{email}</strong> để tải tài liệu.
-                    </p>
-
-                    {isDynamic ? (
-                      <a
-                        href={accessLink}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex h-[44px] items-center justify-center px-8 rounded-xl bg-green-600 text-white font-bold hover:bg-green-700 transition-colors shadow-md gap-2 text-[14px]"
-                      >
-                        <DownloadCloud className="w-4 h-4" /> Mở Drive Tài Liệu
-                      </a>
-                    ) : signedUrl ? (
-                      <a
-                        href={signedUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex h-[44px] items-center justify-center px-8 rounded-xl bg-green-600 text-white font-bold hover:bg-green-700 transition-colors shadow-md gap-2 text-[14px]"
-                      >
-                        <DownloadCloud className="w-4 h-4" /> Tải tài liệu ngay
-                      </a>
-                    ) : (
-                      <div className="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-white border border-green-200 text-[13px] font-bold text-green-700 shadow-sm">
-                        <span className="inline-block h-4 w-4 animate-spin rounded-full border-[2.5px] border-green-500 border-t-transparent" />
-                        Đang tạo link tải...
-                      </div>
-                    )}
-                  </div>
-                )}
               </div>
 
             </div>
