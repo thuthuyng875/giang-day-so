@@ -23,21 +23,14 @@ export async function POST(request: Request) {
       description: body.description || "Thanh toan don hang",
       cancelUrl: body.cancelUrl || "http://localhost:3000",
       returnUrl: body.returnUrl || "http://localhost:3000",
-      items: [
-        {
-          name: body.productName ? body.productName.substring(0, 250) : "Tài liệu",
-          quantity: 1,
-          price: Number(body.amount)
-        }
-      ]
     };
 
     console.log("✅ Dữ liệu chuẩn bị gửi PayOS:", paymentLinkRequest);
 
     const paymentLinkData = await payos.paymentRequests.create(paymentLinkRequest);
-    
+
     console.log("🚀 Kết quả từ PayOS:", paymentLinkData);
-    
+
     return NextResponse.json(paymentLinkData);
 
   } catch (error: unknown) {
@@ -58,13 +51,13 @@ export async function POST(request: Request) {
       stack,
       error: error
     });
-    
+
     return NextResponse.json(
-      { 
-        error: "Lỗi tạo link PayOS", 
+      {
+        error: "Lỗi tạo link PayOS",
         details: message,
         code
-      }, 
+      },
       { status: 500 }
     );
   }

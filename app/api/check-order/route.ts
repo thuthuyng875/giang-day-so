@@ -10,33 +10,9 @@ const payos = new PayOS({
 });
 
 const resend = new Resend(process.env.RESEND_API_KEY);
-const STORAGE_BUCKET = 'digital-docs';
 const signedUrlCache = new Map<number, { signedUrl: string; expiresAtMs: number }>();
 
-function normalizeStoragePath(rawPath: string, bucket: string) {
-  const trimmed = rawPath.trim();
-  if (trimmed.length === 0) return '';
 
-  if (/^https?:\/\//i.test(trimmed)) {
-    try {
-      const url = new URL(trimmed);
-      const parts = url.pathname.split('/').filter(Boolean);
-      const bucketIndex = parts.findIndex((p) => p === bucket);
-      if (bucketIndex >= 0) {
-        return decodeURIComponent(parts.slice(bucketIndex + 1).join('/'));
-      }
-      return decodeURIComponent(parts[parts.length - 1] ?? '');
-    } catch {
-      return trimmed;
-    }
-  }
-
-  const bucketMarker = `${bucket}/`;
-  const markerIndex = trimmed.indexOf(bucketMarker);
-  const withoutBucketPrefix = markerIndex >= 0 ? trimmed.slice(markerIndex + bucketMarker.length) : trimmed;
-
-  return withoutBucketPrefix.replace(/^\/+/, '');
-}
 
 export async function POST(request: Request) {
   try {
@@ -166,7 +142,7 @@ export async function POST(request: Request) {
 
       const { data: productRow, error: productError } = await supabase
         .from('products')
-        .select('file_url, is_dynamic, drive_file_id')
+        .select('is_dynamic, drive_file_id')
         .eq('id', productId)
         .maybeSingle();
 
@@ -177,10 +153,6 @@ export async function POST(request: Request) {
         );
       }
 
-      const filePath =
-        productRow && typeof productRow === 'object' && 'file_url' in productRow
-          ? (productRow as { file_url?: unknown }).file_url
-          : undefined;
 
       const isDynamic =
         productRow && typeof productRow === 'object' && 'is_dynamic' in productRow
@@ -196,76 +168,16 @@ export async function POST(request: Request) {
       let signedUrl: string | undefined;
 
       if (!isDynamic) {
-        if (typeof filePath !== 'string' || filePath.length === 0) {
+        if (!driveFileId) {
           return NextResponse.json(
-            { error: 'Sản phẩm chưa có file_url', details: { productId } },
+            { error: 'Sản phẩm chưa có file (thiếu drive_file_id)', details: { productId } },
             { status: 500 },
           );
         }
 
-        const normalizedFilePath = normalizeStoragePath(filePath, STORAGE_BUCKET);
-        console.log('3.2. file_url lấy từ products:', { filePathRaw: filePath, normalizedFilePath, bucket: STORAGE_BUCKET });
+        signedUrl = accessLink;
 
-        if (!normalizedFilePath) {
-          return NextResponse.json(
-            {
-              error: 'file_url không hợp lệ (sau khi chuẩn hoá rỗng)',
-              details: { productId, filePathRaw: filePath, bucket: STORAGE_BUCKET },
-            },
-            { status: 500 },
-          );
-        }
-
-        console.log('4. Bắt đầu tạo Signed URL từ Storage...');
-
-        const { data: signedData, error: signedError } = await supabase.storage
-          .from(STORAGE_BUCKET)
-          .createSignedUrl(normalizedFilePath, 86400);
-
-        if (signedError) {
-          console.error('Lỗi createSignedUrl:', {
-            bucket: STORAGE_BUCKET,
-            filePathRaw: filePath,
-            normalizedFilePath,
-            message: signedError.message,
-          });
-
-          try {
-            const segments = normalizedFilePath.split('/').filter(Boolean);
-            const fileName = segments.pop() ?? '';
-            const dir = segments.join('/');
-            const { data: listData, error: listError } = await supabase.storage
-              .from(STORAGE_BUCKET)
-              .list(dir, { search: fileName, limit: 20 });
-
-            if (listError) {
-              console.error('Storage list check error:', { dir, fileName, message: listError.message });
-            } else {
-              console.log('Storage list check:', { dir, fileName, matches: (listData ?? []).map((x) => x.name) });
-            }
-          } catch (e) {
-            console.error('Storage list check threw:', e);
-          }
-
-          return NextResponse.json(
-            {
-              error: 'Không thể tạo Signed URL',
-              details: signedError.message,
-              meta: { bucket: STORAGE_BUCKET, filePathRaw: filePath, normalizedFilePath },
-            },
-            { status: 500 },
-          );
-        }
-
-        signedUrl = signedData?.signedUrl;
-        if (!signedUrl) {
-          return NextResponse.json(
-            { error: 'Không nhận được signedUrl từ Supabase' },
-            { status: 500 },
-          );
-        }
-
-        const expiresAtMs = Date.now() + 86400 * 1000;
+        const expiresAtMs = Date.now() + 365 * 86400 * 1000;
         signedUrlCache.set(orderCode, { signedUrl, expiresAtMs });
 
         const { error: persistSignedUrlError } = await supabase
@@ -392,7 +304,7 @@ export async function POST(request: Request) {
             </a>
           </div>
           <p style="margin:12px 0 0 0;font-size:13px;line-height:1.6;color:#b91c1c;font-weight:700;">
-            Link tải chỉ có hiệu lực trong 24 giờ. Vui lòng tải xuống máy tính của Thầy/Cô.
+            Thầy/Cô vui lòng tải xuống máy tính để lưu trữ tài liệu vĩnh viễn.
           </p>
           <p style="margin:14px 0 0 0;font-size:12px;line-height:1.6;color:#6b7280;">
             Nếu Thầy/Cô gặp vấn đề khi tải file, hãy phản hồi email này để được hỗ trợ!
