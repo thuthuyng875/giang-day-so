@@ -16,5 +16,13 @@ export const SUBJECT_MAPPING: Record<string, string> = {
 };
 
 export function getSubjectFromSlug(slug: string): string | null {
-  return SUBJECT_MAPPING[slug] || null;
+  if (SUBJECT_MAPPING[slug]) {
+    return SUBJECT_MAPPING[slug];
+  }
+  // Hỗ trợ trường hợp slug từ component SubjectShowcase (ví dụ: 'khtn', 'toan-hoc' thay vì 'tai-lieu-khtn')
+  const slugWithPrefix = `tai-lieu-${slug}`;
+  if (SUBJECT_MAPPING[slugWithPrefix]) {
+    return SUBJECT_MAPPING[slugWithPrefix];
+  }
+  return null;
 }
