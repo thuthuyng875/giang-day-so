@@ -25,7 +25,7 @@ async function getProductById(id: string) {
   const { data, error } = await supabase
     .from("products")
     .select(
-      "id, name, category, grade, original_price, sale_price, image_url, preview_url, view_count, description, included_files, category_id, is_dynamic, drive_file_id, categories(name), created_at, file_size, tab_intro, tab_content, tab_audience"
+      "id, name, subject, grade, original_price, sale_price, image_url, preview_url, view_count, description, included_files, is_dynamic, drive_file_id, created_at, file_size, tab_intro, tab_content, tab_audience"
     )
     .eq("id", id)
     .single();
@@ -38,29 +38,26 @@ async function getProductById(id: string) {
 }
 
 async function getRelatedProducts(
-  categoryId: string | null,
-  categoryName: string,
+  subjectName: string | null,
   grade: string | number | null,
   excludeId: string
 ) {
   const supabase = getSupabaseServerClient();
   let query = supabase
     .from("products")
-    .select("id, name, category, grade, original_price, sale_price, image_url, preview_url, view_count, is_dynamic, drive_file_id")
+    .select("id, name, subject, grade, original_price, sale_price, image_url, preview_url, view_count, is_dynamic, drive_file_id")
     .neq("id", excludeId)
     .limit(12);
 
-  if (categoryId) {
-    query = query.eq("category_id", categoryId);
-  } else {
-    query = query.eq("category", categoryName);
+  if (subjectName) {
+    query = query.eq("subject", subjectName);
   }
 
   if (grade !== null && grade !== undefined) query = query.eq("grade", grade);
 
   const { data, error } = await query;
   if (error || !data || data.length === 0) {
-    return dummyProducts.filter((p) => p.category === categoryName && p.id !== excludeId).slice(0, 12);
+    return dummyProducts.filter((p) => p.category === subjectName && p.id !== excludeId).slice(0, 12);
   }
   return data;
 }
@@ -159,7 +156,8 @@ export default async function ProductDetailPage({ params }: PageProps) {
   }
 
   // ── Data derivation ──────────────────────────────────────────
-  const category = (product as any).categories?.name ?? product.category ?? "Danh mục";
+  const category = (product as any).subject ?? (product as any).category ?? "Danh mục";
+  const categorySlug = category.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, "d").replace(/[^a-z0-9\s-]/g, "").trim().replace(/\s+/g, "-");
   const grade = product.grade ? `${product.grade}` : null;
   const isDynamic = (product as any).is_dynamic ?? false;
   const oldPrice = product.original_price ?? Math.round((product.sale_price ?? 0) / 0.8);
@@ -191,8 +189,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
   const includedFiles = (product as any).included_files ?? null;
 
   const relatedProducts = await getRelatedProducts(
-    (product as any).category_id ?? null,
-    category,
+    category !== "Danh mục" ? category : null,
     product.grade ?? null,
     product.id
   );
@@ -208,7 +205,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
         <nav className="flex items-center gap-2 text-[12px] text-[#777] mb-4">
           <Link href="/" className="hover:text-[#2563EB] transition-colors">Trang chủ</Link>
           <ChevronRight className="w-3.5 h-3.5" />
-          <Link href={`/category/${(product as any).category_id}`} className="hover:text-[#2563EB] transition-colors">{category}</Link>
+          <Link href={`/danh-muc/${categorySlug}`} className="hover:text-[#2563EB] transition-colors">{category}</Link>
           {grade && (
             <>
               <ChevronRight className="w-3.5 h-3.5" />
