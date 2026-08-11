@@ -3,7 +3,7 @@ export const SUBJECT_MAPPING: Record<string, string> = {
   "tai-lieu-vat-ly": "Vật lý",
   "tai-lieu-hoa-hoc": "Hóa học",
   "tai-lieu-sinh-hoc": "Sinh học",
-  "tai-lieu-tin-hoc": "Tin học",
+  "tai-lieu-khtn": "KHTN",
   "tai-lieu-tieng-anh": "Tiếng Anh",
   "tai-lieu-ngu-van": "Ngữ văn",
   "tai-lieu-lich-su": "Lịch sử",

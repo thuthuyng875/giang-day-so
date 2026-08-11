@@ -40,7 +40,7 @@ export const headerNavigationFallback: HeaderNavigationModel = {
             { key: 'tai-lieu-vat-ly', label: 'Tài liệu Vật lý', href: '/danh-muc/tai-lieu-vat-ly' },
             { key: 'tai-lieu-hoa-hoc', label: 'Tài liệu Hóa học', href: '/danh-muc/tai-lieu-hoa-hoc' },
             { key: 'tai-lieu-sinh-hoc', label: 'Tài liệu Sinh học', href: '/danh-muc/tai-lieu-sinh-hoc' },
-            { key: 'tai-lieu-tin-hoc', label: 'Tài liệu Tin học', href: '/danh-muc/tai-lieu-tin-hoc' },
+            { key: 'tai-lieu-khtn', label: 'Tài liệu KHTN', href: '/danh-muc/tai-lieu-khtn' },
           ],
         },
         {

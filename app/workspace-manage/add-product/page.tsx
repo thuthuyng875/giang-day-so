@@ -6,7 +6,7 @@ import { createProductAction } from "../actions";
 import { supabase } from "@/lib/supabase/client";
 
 const SUBJECTS = [
-  "Toán học", "Vật lý", "Hóa học", "Sinh học", "Tin học",
+  "Toán học", "Vật lý", "Hóa học", "Sinh học", "KHTN",
   "Tiếng Anh", "Ngữ văn", "Lịch sử", "Địa lý", "GD KT&PL",
   "HSA", "VACT", "TSA", "SPT"
 ];

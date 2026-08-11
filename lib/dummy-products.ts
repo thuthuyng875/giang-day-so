@@ -187,7 +187,7 @@ export const dummyProducts: DummyProduct[] = [
   },
   {
     id: "dummy-14",
-    name: "Giáo án Tin học lớp 8: Theo từng chủ đề",
+    name: "Giáo án KHTN lớp 8: Theo từng chủ đề",
     category: "Giao An",
     grade: 8,
     price: 119000,
@@ -196,7 +196,7 @@ export const dummyProducts: DummyProduct[] = [
     view_count: 1950,
     download_count: 542,
     description:
-      "Bộ giáo án Tin học lớp 8 được thiết kế theo từng chủ đề, đảm bảo cấu trúc và tiến trình dạy học rõ ràng.\n\nMỗi bài gồm:\n- Mục tiêu cần đạt\n- Thiết bị/học liệu sử dụng\n- Hoạt động khởi động – hình thành kiến thức – luyện tập – vận dụng\n- Gợi ý đánh giá và bài tập bổ sung\n\nPhù hợp cho:\n- Giáo viên chuẩn bị bài nhanh\n- Dạy học theo định hướng phát triển năng lực\n\nTài liệu trình bày dễ chỉnh sửa, giúp thầy cô tùy biến cho phù hợp lớp học.",
+      "Bộ giáo án KHTN lớp 8 được thiết kế theo từng chủ đề, đảm bảo cấu trúc và tiến trình dạy học rõ ràng.\n\nMỗi bài gồm:\n- Mục tiêu cần đạt\n- Thiết bị/học liệu sử dụng\n- Hoạt động khởi động – hình thành kiến thức – luyện tập – vận dụng\n- Gợi ý đánh giá và bài tập bổ sung\n\nPhù hợp cho:\n- Giáo viên chuẩn bị bài nhanh\n- Dạy học theo định hướng phát triển năng lực\n\nTài liệu trình bày dễ chỉnh sửa, giúp thầy cô tùy biến cho phù hợp lớp học.",
   },
   {
     id: "dummy-15",
